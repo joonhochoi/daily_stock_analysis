@@ -115,6 +115,18 @@ class MarketPhasePromptTestCase(unittest.TestCase):
         self.assertIn("Do not describe today's price action as already happened", section)
         self.assertNotIn("(premarket)", section)
 
+    def test_korean_mode_outputs_readable_korean_constraints(self):
+        section = format_market_phase_prompt_section(
+            _ctx(phase="premarket", is_partial_bar=False),
+            report_language="ko",
+        )
+
+        self.assertIn("시장 장 구분 컨텍스트", section)
+        self.assertIn("장전", section)
+        self.assertIn("정규장이 아직 열리지 않았습니다", section)
+        self.assertIn("오늘의 움직임이 이미 발생한 것처럼 설명하지 말고", section)
+        self.assertNotIn("市场阶段上下文", section)
+
     def test_output_does_not_leak_runtime_raw_keys(self):
         section = format_market_phase_prompt_section(_ctx())
 

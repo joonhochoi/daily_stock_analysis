@@ -2,6 +2,7 @@ import type React from 'react';
 import { Languages } from 'lucide-react';
 import { useUiLanguage } from '../../contexts/UiLanguageContext';
 import { cn } from '../../utils/cn';
+import type { UiLanguage } from '../../i18n/uiText';
 
 type UiLanguageToggleVariant = 'default' | 'nav' | 'rail';
 
@@ -25,16 +26,21 @@ export const UiLanguageToggle: React.FC<UiLanguageToggleProps> = ({
   labelClassName,
 }) => {
   const { language, setLanguage, t } = useUiLanguage();
-  const nextLanguage = language === 'zh' ? 'en' : 'zh';
+  const nextLanguage: Record<UiLanguage, UiLanguage> = { zh: 'en', en: 'ko', ko: 'zh' };
   const isNavVariant = variant === 'nav';
   const isRailVariant = variant === 'rail';
   const label = language === 'zh' ? t('language.uiLanguage') : t('language.current');
+  const shortLabelKey: Record<UiLanguage, 'language.short.zh' | 'language.short.en' | 'language.short.ko'> = {
+    zh: 'language.short.zh',
+    en: 'language.short.en',
+    ko: 'language.short.ko',
+  };
 
   return (
     <div className={cn('relative', isRailVariant ? 'w-full' : '', wrapperClassName)}>
       <button
         type="button"
-        onClick={() => setLanguage(nextLanguage)}
+        onClick={() => setLanguage(nextLanguage[language])}
         className={cn(
           triggerClassName
             ? triggerClassName
@@ -51,7 +57,7 @@ export const UiLanguageToggle: React.FC<UiLanguageToggleProps> = ({
       >
         <Languages className={iconClassName ?? cn('shrink-0', isRailVariant ? 'h-[18px] w-[18px]' : isNavVariant ? 'h-5 w-5' : 'h-4 w-4')} />
         {isRailVariant ? (
-          <span className={labelClassName}>{language === 'zh' ? t('language.short.zh') : t('language.short.en')}</span>
+          <span className={labelClassName}>{t(shortLabelKey[language])}</span>
         ) : isNavVariant ? (
           collapsed ? null : <span className="truncate text-[1.02rem] font-medium">{label}</span>
         ) : (

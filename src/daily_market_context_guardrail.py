@@ -12,6 +12,7 @@ from src.report_language import normalize_report_language
 _CONSERVATIVE_TAGS = {"high_risk", "market_cooling", "conservative", "low_position_cap"}
 _CONSERVATIVE_TEXT_MARKERS_ZH = ("退潮", "观望", "高风险", "谨慎", "保守", "仓位上限", "仓位不超过", "轻仓")
 _CONSERVATIVE_TEXT_MARKERS_EN = ("high risk", "risk-off", "risk off", "watch", "cautious", "conservative", "position cap", "position limit")
+_CONSERVATIVE_TEXT_MARKERS_KO = ("고위험", "위험 회피", "관망", "주의", "보수적", "비중 상한", "소액")
 _AGGRESSIVE_BUY_MARKERS_ZH = (
     "立即买入",
     "马上买入",
@@ -25,14 +26,16 @@ _AGGRESSIVE_BUY_MARKERS_ZH = (
     "加仓",
 )
 _AGGRESSIVE_BUY_MARKERS_EN = ("buy now", "strong buy", "aggressive buy", "chase", "add aggressively")
+_AGGRESSIVE_BUY_MARKERS_KO = ("즉시 매수", "지금 매수", "적극 매수", "공격적 매수", "추격 매수", "비중 확대")
 _NEGATION_HINTS_ZH = ("暂不", "不建议", "不应", "不宜", "不能", "无法", "不允许", "禁止", "避免", "不要", "别", "先不")
 _NEGATION_HINTS_EN = (" not ", "do not", "don't", "no ", "never", "avoid")
+_NEGATION_HINTS_KO = ("매수하지", "매수 금지", "매수 금물", "추격하지", "피하세요", "회피", "비추천")
 _NEGATION_LOOKBACK = 16
 _GUARDRAIL_SENTIMENT_SCORE = 52
 
 
 def _softened_operation_advice(language: str) -> str:
-    return "Watch" if language == "en" else "观望"
+    return "Watch" if language == "en" else "관망" if language == "ko" else "观望"
 
 
 def apply_daily_market_context_guardrail(
@@ -61,7 +64,7 @@ def apply_daily_market_context_guardrail(
     result.operation_advice = softened_advice
 
     if _is_high_confidence(getattr(result, "confidence_level", "")):
-        result.confidence_level = "Medium" if language == "en" else "中"
+        result.confidence_level = "Medium" if language == "en" else "보통" if language == "ko" else "中"
         adjustments.append("confidence_capped_daily_market_context")
 
     result.sentiment_score = _cap_conservative_sentiment_score(
@@ -116,6 +119,11 @@ def _softened_position_advice(language: str) -> dict[str, str]:
             "no_position": "Do not open a new position until market risk eases or confirmation appears.",
             "has_position": "Hold only a small position; do not increase exposure, and reduce if risk controls break.",
         }
+    if language == "ko":
+        return {
+            "no_position": "시장 위험이 완화되거나 확인 신호가 나타날 때까지 신규 진입하지 마세요.",
+            "has_position": "소액만 보유하고 비중을 늘리지 마세요. 위험 관리 기준을 이탈하면 비중을 줄이세요.",
+        }
     return {
         "no_position": "大盘环境偏谨慎，暂不开新仓，等待风险缓解或确认信号。",
         "has_position": "仅保留小仓观察，暂不扩大仓位；若跌破风控位优先降低仓位。",
@@ -129,6 +137,12 @@ def _softened_position_strategy(language: str) -> dict[str, str]:
             "suggested_position": "Small/defensive position",
             "entry_plan": position_advice["no_position"],
             "risk_control": "Do not increase exposure before market risk eases; control drawdown strictly.",
+        }
+    if language == "ko":
+        return {
+            "suggested_position": "소액/방어적 비중",
+            "entry_plan": position_advice["no_position"],
+            "risk_control": "시장 위험이 완화되기 전에는 비중을 늘리지 말고 낙폭을 엄격히 관리하세요.",
         }
     return {
         "suggested_position": "小仓/低仓位",
@@ -144,6 +158,8 @@ def _append_softening_limitation(phase_decision: dict[str, Any], *, language: st
     limitation = (
         "Daily market context is conservative/high risk; aggressive buy advice was softened."
         if language == "en"
+        else "일일 시장 환경이 보수적/고위험이어서 공격적인 매수 의견을 완화했습니다."
+        if language == "ko"
         else "大盘环境偏谨慎/高风险，已软化激进买入建议。"
     )
     if limitation not in limitations:
@@ -153,6 +169,8 @@ def _append_softening_limitation(phase_decision: dict[str, Any], *, language: st
     reason_note = (
         "Market context requires conservative sizing."
         if language == "en"
+        else "시장 환경에 따라 보수적인 비중 관리가 필요합니다."
+        if language == "ko"
         else "大盘环境要求降低进攻性并控制仓位。"
     )
     phase_decision["confidence_reason"] = (
@@ -173,7 +191,7 @@ def _is_conservative_context(context: Any) -> bool:
     lowered = summary.lower()
     return any(marker in summary for marker in _CONSERVATIVE_TEXT_MARKERS_ZH) or any(
         marker in lowered for marker in _CONSERVATIVE_TEXT_MARKERS_EN
-    )
+    ) or any(marker in summary for marker in _CONSERVATIVE_TEXT_MARKERS_KO)
 
 
 def _has_aggressive_buy_signal(result: Any, *, language: str) -> bool:
@@ -191,7 +209,7 @@ def _has_aggressive_buy_signal(result: Any, *, language: str) -> bool:
 
 
 def _buy_markers(language: str) -> tuple[str, ...]:
-    return _AGGRESSIVE_BUY_MARKERS_EN if language == "en" else _AGGRESSIVE_BUY_MARKERS_ZH
+    return _AGGRESSIVE_BUY_MARKERS_EN if language == "en" else _AGGRESSIVE_BUY_MARKERS_KO if language == "ko" else _AGGRESSIVE_BUY_MARKERS_ZH
 
 
 def _contains_any(
@@ -202,7 +220,7 @@ def _contains_any(
     require_negation: bool = False,
 ) -> bool:
     lowered = text.lower()
-    negation_hints = _NEGATION_HINTS_ZH if language == "zh" else _NEGATION_HINTS_EN
+    negation_hints = _NEGATION_HINTS_ZH if language == "zh" else _NEGATION_HINTS_KO if language == "ko" else _NEGATION_HINTS_EN
     for marker in markers:
         marker_lower = marker.lower()
         marker_pos = 0

@@ -198,6 +198,18 @@ def test_english_summary_renders_readable_statuses() -> None:
     assert "Phase/data rule" not in section
 
 
+def test_korean_summary_renders_readable_statuses() -> None:
+    section = format_analysis_context_pack_prompt_section(_pack(), report_language="ko")
+
+    assert "분석 컨텍스트 팩 요약" in section
+    assert "시세: fallback" in section
+    assert "기술적 분석: partial" in section
+    assert "데이터 품질 점수: 76/100 (사용 가능)" in section
+    assert "알려진 한계: 시세: 대체 경로, 기술적 분석: 일부 사용 가능" in section
+    assert "confidence_level을 높음으로 설정하지 마세요" in section
+    assert "分析上下文包摘要" not in section
+
+
 def test_intraday_phase_degraded_core_adds_phase_data_quality_guard() -> None:
     section = format_analysis_context_pack_prompt_section(_pack_with_phase("intraday"))
 

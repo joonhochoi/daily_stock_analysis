@@ -44,6 +44,11 @@ describe('UiLanguageContext', () => {
       storage: createStorage('en'),
       navigatorLike: { language: 'zh-CN', languages: ['zh-CN'] },
     })).toBe('en');
+
+    expect(resolveInitialUiLanguage({
+      storage: createStorage('ko'),
+      navigatorLike: { language: 'en-US', languages: ['en-US'] },
+    })).toBe('ko');
   });
 
   it('falls back from invalid storage to the first supported browser language and then zh', () => {
@@ -56,6 +61,11 @@ describe('UiLanguageContext', () => {
       storage: createStorage('fr'),
       navigatorLike: { language: 'zh-CN', languages: ['zh-CN', 'en-US'] },
     })).toBe('zh');
+
+    expect(resolveInitialUiLanguage({
+      storage: createStorage(null),
+      navigatorLike: { language: 'ko-KR', languages: ['ko-KR', 'en-US'] },
+    })).toBe('ko');
 
     expect(resolveInitialUiLanguage({
       storage: createStorage(null),
@@ -102,7 +112,7 @@ describe('UiLanguageContext', () => {
     }
   });
 
-  it('switches UI language immediately and persists the explicit choice', () => {
+  it('cycles zh, en, and ko immediately and persists each explicit choice', () => {
     localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'zh');
 
     render(
@@ -119,5 +129,17 @@ describe('UiLanguageContext', () => {
     expect(localStorage.getItem(UI_LANGUAGE_STORAGE_KEY)).toBe('en');
     expect(screen.getByRole('button', { name: 'Switch UI language' })).toBeInTheDocument();
     expect(screen.getByText('English')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Switch UI language' }));
+
+    expect(localStorage.getItem(UI_LANGUAGE_STORAGE_KEY)).toBe('ko');
+    expect(document.documentElement.lang).toBe('ko-KR');
+    expect(screen.getByRole('button', { name: '화면 언어 전환' })).toBeInTheDocument();
+    expect(screen.getByText('한국어')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '화면 언어 전환' }));
+
+    expect(localStorage.getItem(UI_LANGUAGE_STORAGE_KEY)).toBe('zh');
+    expect(document.documentElement.lang).toBe('zh-CN');
   });
 });

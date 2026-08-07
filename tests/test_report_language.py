@@ -9,12 +9,28 @@ from src.report_language import (
     get_sentiment_label,
     get_signal_level,
     infer_decision_type_from_advice,
+    get_report_labels,
     localize_trend_prediction,
     localize_bias_status,
+    normalize_report_language,
 )
 
 
 class ReportLanguageTestCase(unittest.TestCase):
+    def test_normalize_report_language_accepts_korean_aliases(self) -> None:
+        self.assertEqual(normalize_report_language("ko"), "ko")
+        self.assertEqual(normalize_report_language("ko-KR"), "ko")
+        self.assertEqual(normalize_report_language("korean"), "ko")
+
+    def test_korean_report_labels_and_canonical_values(self) -> None:
+        labels = get_report_labels("ko")
+
+        self.assertEqual(labels["dashboard_title"], "의사결정 대시보드")
+        self.assertEqual(labels["core_conclusion_heading"], "핵심 결론")
+        self.assertEqual(localize_trend_prediction("bullish", "ko"), "상승")
+        self.assertEqual(localize_bias_status("Caution", "ko"), "주의")
+        self.assertEqual(get_signal_level("강력 매수", 90, "ko"), ("강력 매수", "💚", "strong_buy"))
+
     def test_get_signal_level_handles_compound_sell_advice(self) -> None:
         signal_text, emoji, signal_tag = get_signal_level("卖出/观望", 60, "zh")
 
@@ -40,6 +56,8 @@ class ReportLanguageTestCase(unittest.TestCase):
         self.assertEqual(get_sentiment_label(60, "en"), "Bullish")
         self.assertEqual(get_sentiment_label(40, "zh"), "中性")
         self.assertEqual(get_sentiment_label(20, "zh"), "悲观")
+        self.assertEqual(get_sentiment_label(80, "ko"), "매우 낙관적")
+        self.assertEqual(get_sentiment_label(20, "ko"), "비관적")
 
     def test_localize_trend_prediction_preserves_fine_grain_zh_states(self) -> None:
         self.assertEqual(localize_trend_prediction("多头排列", "zh"), "多头排列")

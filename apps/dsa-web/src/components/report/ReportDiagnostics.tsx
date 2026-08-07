@@ -93,6 +93,24 @@ const TEXT = {
       skipped: 'Skipped',
     },
   },
+  ko: {
+    eyebrow: '실행 진단',
+    title: '실행 상태',
+    loading: '진단을 불러오는 중...',
+    unavailable: '실행 진단을 사용할 수 없습니다',
+    noComponents: '구성 요소 진단 없음',
+    components: '주요 경로',
+    advanced: '고급 필드',
+    copy: '진단 정보 복사',
+    copied: '복사됨',
+    scope: '수집 / LLM / 저장 / 알림 경로',
+    trace: '추적',
+    task: '작업',
+    query: '요청',
+    trigger: '실행 출처',
+    overall: { normal: '정상', degraded: '일부 성능 저하', failed: '실패', unknown: '알 수 없음' },
+    component: { ok: '정상', degraded: '최근 실패', failed: '실패', unknown: '알 수 없음', not_configured: '미설정', skipped: '건너뜀' },
+  },
 } as const;
 
 const OVERALL_STATUS_STYLE: Record<RunDiagnosticStatus, { variant: BadgeVariant; tone: StatusTone }> = {

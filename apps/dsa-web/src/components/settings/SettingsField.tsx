@@ -4,7 +4,7 @@ import { Badge, Button, Select, Input } from '../common';
 import type { ConfigValidationIssue, SystemConfigFieldSchema, SystemConfigItem } from '../../types/systemConfig';
 import { useUiLanguage } from '../../contexts/UiLanguageContext';
 import { getSettingsHelpContent } from '../../locales/settingsHelp';
-import { getFieldDescriptionZh, getFieldOptionLabel, getFieldTitleZh } from '../../utils/systemConfigI18n';
+import { getFieldDescriptionZh, getFieldOptionLabel, getFieldTitle } from '../../utils/systemConfigI18n';
 import type { UiLanguage, UiTextKey } from '../../i18n/uiText';
 import { cn } from '../../utils/cn';
 import { SettingsHelpButton } from './SettingsHelpButton';
@@ -225,8 +225,8 @@ export const SettingsField: React.FC<SettingsFieldProps> = ({
   const isMultiValue = isMultiValueField(item);
   const helpContent = getSettingsHelpContent(schema?.helpKey, schema?.description, language);
   const fallbackTitle = schema?.title ?? item.key;
-  const title = language === 'zh' ? getFieldTitleZh(item.key, fallbackTitle) : fallbackTitle;
-  const description = language === 'en'
+  const title = getFieldTitle(item.key, fallbackTitle, language);
+  const description = language !== 'zh'
     ? helpContent?.summary ?? schema?.description ?? ''
     : getFieldDescriptionZh(item.key, schema?.description);
   const hasError = issues.some((issue) => issue.severity === 'error');

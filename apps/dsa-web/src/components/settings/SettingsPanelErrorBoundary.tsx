@@ -125,7 +125,14 @@ class SettingsPanelErrorBoundaryImpl extends Component<
 
 export const SettingsPanelErrorBoundary = (props: SettingsPanelErrorBoundaryProps) => {
   const { language } = useUiLanguage();
-  const labels: SettingsPanelErrorBoundaryLabels = language === 'en'
+  const labels: SettingsPanelErrorBoundaryLabels = language === 'ko'
+    ? {
+        loadFailedSuffix: ' 불러오기 실패',
+        runtimeErrorMessage: '이 설정 영역에서 프런트엔드 실행 오류가 발생했습니다. 다른 설정은 계속 사용할 수 있습니다.',
+        defaultDiagnosticHint: '문제 진단을 위해 릴리스 버전, 실행 환경과 재현 경로를 알려 주세요.',
+        errorSummaryPrefix: '오류 요약: ',
+      }
+    : language === 'en'
     ? {
         loadFailedSuffix: ' failed to load',
         runtimeErrorMessage: 'This settings area hit a frontend runtime error. Other settings remain usable.',

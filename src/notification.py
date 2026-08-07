@@ -1047,12 +1047,12 @@ class NotificationService(
         config = get_config()
         report_language = self._get_report_language(results)
         labels = get_report_labels(report_language)
-        reason_label = "Rationale" if report_language == "en" else "操作理由"
-        risk_warning_label = "Risk Warning" if report_language == "en" else "风险提示"
-        technical_heading = "Technicals" if report_language == "en" else "技术面"
-        ma_label = "Moving Averages" if report_language == "en" else "均线"
-        volume_analysis_label = "Volume" if report_language == "en" else "量能"
-        news_heading = "News Flow" if report_language == "en" else "消息面"
+        reason_label = labels["reason_label"]
+        risk_warning_label = labels["risk_warning_label"]
+        technical_heading = labels["technical_heading"]
+        ma_label = labels["ma_label"]
+        volume_analysis_label = labels["volume_analysis_label"]
+        news_heading = labels["news_heading"]
         if getattr(config, 'report_renderer_enabled', False) and results:
             from src.services.report_renderer import render
             out = render(
@@ -1786,16 +1786,16 @@ class NotificationService(
 
     # Display name mapping for realtime data sources
     _SOURCE_DISPLAY_NAMES = {
-        "tencent": {"zh": "腾讯财经", "en": "Tencent Finance"},
-        "akshare_em": {"zh": "东方财富", "en": "Eastmoney"},
-        "akshare_sina": {"zh": "新浪财经", "en": "Sina Finance"},
-        "akshare_qq": {"zh": "腾讯财经", "en": "Tencent Finance"},
-        "efinance": {"zh": "东方财富(efinance)", "en": "Eastmoney (efinance)"},
-        "tushare": {"zh": "Tushare Pro", "en": "Tushare Pro"},
-        "sina": {"zh": "新浪财经", "en": "Sina Finance"},
-        "stooq": {"zh": "Stooq", "en": "Stooq"},
-        "longbridge": {"zh": "长桥", "en": "Longbridge"},
-        "fallback": {"zh": "降级兜底", "en": "Fallback"},
+        "tencent": {"zh": "腾讯财经", "en": "Tencent Finance", "ko": "Tencent Finance"},
+        "akshare_em": {"zh": "东方财富", "en": "Eastmoney", "ko": "Eastmoney"},
+        "akshare_sina": {"zh": "新浪财经", "en": "Sina Finance", "ko": "Sina Finance"},
+        "akshare_qq": {"zh": "腾讯财经", "en": "Tencent Finance", "ko": "Tencent Finance"},
+        "efinance": {"zh": "东方财富(efinance)", "en": "Eastmoney (efinance)", "ko": "Eastmoney (efinance)"},
+        "tushare": {"zh": "Tushare Pro", "en": "Tushare Pro", "ko": "Tushare Pro"},
+        "sina": {"zh": "新浪财经", "en": "Sina Finance", "ko": "Sina Finance"},
+        "stooq": {"zh": "Stooq", "en": "Stooq", "ko": "Stooq"},
+        "longbridge": {"zh": "长桥", "en": "Longbridge", "ko": "Longbridge"},
+        "fallback": {"zh": "降级兜底", "en": "Fallback", "ko": "대체 경로"},
     }
 
     def _get_source_display_name(self, source: Any, language: Optional[str]) -> str:

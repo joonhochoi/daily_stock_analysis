@@ -26,6 +26,16 @@ _PHASE_LABELS_EN = {
     "unknown": "unknown phase",
 }
 
+_PHASE_LABELS_KO = {
+    "premarket": "장전",
+    "intraday": "장중",
+    "lunch_break": "점심 휴장",
+    "closing_auction": "마감 직전",
+    "postmarket": "장후",
+    "non_trading": "휴장일",
+    "unknown": "알 수 없는 장 구분",
+}
+
 _KNOWN_PHASES = set(_PHASE_LABELS_ZH)
 
 _WARNING_LABELS_ZH = {
@@ -38,6 +48,12 @@ _WARNING_LABELS_EN = {
     "unknown_market": "unknown market",
     "calendar_unavailable": "trading calendar unavailable",
     "calendar_error": "trading calendar error",
+}
+
+_WARNING_LABELS_KO = {
+    "unknown_market": "알 수 없는 시장",
+    "calendar_unavailable": "거래일 달력을 사용할 수 없음",
+    "calendar_error": "거래일 달력 오류",
 }
 
 
@@ -56,12 +72,15 @@ def format_market_phase_prompt_section(
     if not isinstance(market_phase_context, dict) or not market_phase_context:
         return ""
 
-    lang = "en" if str(report_language or "").lower() == "en" else "zh"
+    raw_language = str(report_language or "").lower()
+    lang = "en" if raw_language.startswith("en") else "ko" if raw_language.startswith("ko") else "zh"
     raw_phase = market_phase_context.get("phase")
     phase = raw_phase if isinstance(raw_phase, str) and raw_phase in _KNOWN_PHASES else "unknown"
 
     if lang == "en":
         return _format_en(market_phase_context, phase)
+    if lang == "ko":
+        return _format_ko(market_phase_context, phase)
     return _format_zh(market_phase_context, phase)
 
 
@@ -88,6 +107,18 @@ def _format_en(ctx: Dict[str, Any], phase: str) -> str:
     if warning_text:
         lines.append(f"- Degradation note: {warning_text}; keep the analysis conservative.")
 
+    return "\n".join(lines) + "\n"
+
+
+def _format_ko(ctx: Dict[str, Any], phase: str) -> str:
+    label = _PHASE_LABELS_KO[phase]
+    lines = ["", "## 시장 장 구분 컨텍스트", f"- 현재 시장 구간: {label}"]
+    lines.extend(_metadata_lines_ko(ctx))
+    lines.append(f"- 장 구분 제약: {_phase_rule_ko(ctx, phase)}")
+
+    warning_text = _warning_text(ctx.get("warnings"), lang="ko")
+    if warning_text:
+        lines.append(f"- 성능 저하 안내: {warning_text}; 보수적으로 표현하세요.")
     return "\n".join(lines) + "\n"
 
 
@@ -130,6 +161,26 @@ def _metadata_lines_en(ctx: Dict[str, Any]) -> List[str]:
         items.append(f"- About {minutes_to_open} minutes until the regular session opens.")
     if minutes_to_close is not None:
         items.append(f"- About {minutes_to_close} minutes until the regular session closes.")
+    return items
+
+
+def _metadata_lines_ko(ctx: Dict[str, Any]) -> List[str]:
+    items: List[str] = []
+    market = _string_value(ctx.get("market"))
+    market_time = _string_value(ctx.get("market_local_time"))
+    effective_date = _string_value(ctx.get("effective_daily_bar_date"))
+    minutes_to_open = _int_like(ctx.get("minutes_to_open"))
+    minutes_to_close = _int_like(ctx.get("minutes_to_close"))
+    if market:
+        items.append(f"- 시장: {market}")
+    if market_time:
+        items.append(f"- 시장 현지 시각: {market_time}")
+    if effective_date:
+        items.append(f"- 재사용 가능한 최신 완성 일봉 날짜: {effective_date}")
+    if minutes_to_open is not None:
+        items.append(f"- 정규장 개장까지 약 {minutes_to_open}분")
+    if minutes_to_close is not None:
+        items.append(f"- 정규장 마감까지 약 {minutes_to_close}분")
     return items
 
 
@@ -186,14 +237,35 @@ def _phase_rule_en(ctx: Dict[str, Any], phase: str) -> str:
     return "The market phase cannot be inferred reliably. Do not invent pre-market or intraday facts, and keep conclusions conservative."
 
 
+def _phase_rule_ko(ctx: Dict[str, Any], phase: str) -> str:
+    effective_date = _string_value(ctx.get("effective_daily_bar_date"))
+    date_hint = f" ({effective_date})" if effective_date else ""
+    if phase == "premarket":
+        return f"정규장이 아직 열리지 않았습니다. 오늘의 움직임이 이미 발생한 것처럼 설명하지 말고 최신 완성 일봉{date_hint}과 장전 정보로 개장 계획을 세우세요."
+    if phase in {"intraday", "lunch_break", "closing_auction"}:
+        base = "장후 복기가 아닙니다. 현재 장중 상태, 관찰 조건과 다음 확인 시점에 집중하세요."
+        if ctx.get("is_partial_bar") is True:
+            base += " 최신 일봉이 완성되지 않았을 수 있으므로 완성된 일봉으로 취급하지 마세요."
+        if phase == "lunch_break":
+            base += " 점심 휴장 중 판단은 오후장 확인이 필요합니다."
+        if phase == "closing_auction":
+            base += " 마감 직전에는 장 마감 위험 관리와 익일 보유 여부를 강조하세요."
+        return base
+    if phase == "postmarket":
+        return "정규장이 종료되어 전체 거래일 복기 형식을 사용할 수 있습니다."
+    if phase == "non_trading":
+        return f"휴장일 또는 강제 실행입니다. 최신 완성 일봉{date_hint}과 알려진 사건만 사용하고 오늘의 장중 움직임을 만들어 내지 마세요."
+    return "시장 구간을 신뢰성 있게 판단할 수 없습니다. 존재하지 않는 장전·장중 사실을 만들지 말고 보수적으로 결론 내리세요."
+
+
 def _warning_text(value: Any, *, lang: str) -> str:
     if not isinstance(value, list):
         return ""
-    labels = _WARNING_LABELS_EN if lang == "en" else _WARNING_LABELS_ZH
+    labels = _WARNING_LABELS_EN if lang == "en" else _WARNING_LABELS_KO if lang == "ko" else _WARNING_LABELS_ZH
     rendered = [labels[item] for item in value if isinstance(item, str) and item in labels]
     if not rendered:
         return ""
-    if lang == "en":
+    if lang != "zh":
         return ", ".join(rendered)
     return "、".join(rendered)
 

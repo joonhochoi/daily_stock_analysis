@@ -95,6 +95,18 @@ def test_format_decision_signal_excerpt_formats_english_and_redacts_text() -> No
     assert "- Risk: token=[REDACTED]" in excerpt
 
 
+def test_format_decision_signal_excerpt_formats_korean_labels() -> None:
+    excerpt = format_decision_signal_excerpt(
+        {"action_label": "매수", "horizon": "3d", "reason": "지지선 확인"},
+        report_language="ko",
+    )
+
+    assert "AI 의사결정 신호" in excerpt
+    assert "행동: 매수" in excerpt
+    assert "기간: 3d" in excerpt
+    assert "근거: 지지선 확인" in excerpt
+
+
 def test_format_decision_signal_excerpt_returns_empty_for_invalid_input() -> None:
     assert format_decision_signal_excerpt(None) == ""
     assert format_decision_signal_excerpt({}) == ""

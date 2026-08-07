@@ -2241,7 +2241,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
 };
 
 function getPreferredHelpMap(locale?: string | null): SettingsHelpMap {
-  if (locale?.toLowerCase().startsWith('en')) {
+  if (locale?.toLowerCase().startsWith('en') || locale?.toLowerCase().startsWith('ko')) {
     return settingsHelpEnUS;
   }
   return settingsHelpZhCN;
@@ -2263,7 +2263,9 @@ export function getSettingsHelpContent(
 
   if (fallbackDescription) {
     return {
-      title: locale?.toLowerCase().startsWith('en') ? 'Configuration help' : '配置说明',
+      title: locale?.toLowerCase().startsWith('ko')
+        ? '설정 도움말'
+        : locale?.toLowerCase().startsWith('en') ? 'Configuration help' : '配置说明',
       summary: fallbackDescription,
     };
   }

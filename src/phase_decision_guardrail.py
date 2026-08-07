@@ -53,6 +53,7 @@ _EN_POSTMARKET_RECAP_PATTERNS = (
     "tomorrow's focus",
     "tomorrow’s focus",
 )
+_KO_POSTMARKET_RECAP_PATTERNS = ("오늘 장 마감 후", "장후 복기", "내일 중점", "다음 거래일 중점", "전체 거래일 복기")
 
 _IMMEDIATE_ACTION_MARKERS_ZH = (
     "立即买入",
@@ -65,8 +66,10 @@ _IMMEDIATE_ACTION_MARKERS_ZH = (
     "马上减仓",
 )
 _IMMEDIATE_ACTION_MARKERS_EN = ("buy now", "sell now", "immediate buy", "immediate sell", "add now", "reduce now")
+_IMMEDIATE_ACTION_MARKERS_KO = ("즉시 매수", "지금 매수", "즉시 비중 확대", "즉시 매도", "지금 매도", "즉시 비중 축소")
 _NEGATION_PREFIXES_ZH = ("暂不", "不建议", "禁止", "不要", "无需", "避免", "不能", "不可", "不宜", "勿", "不")
 _NEGATION_PREFIXES_EN = ("do not", "don't", "dont", "not", "no", "avoid", "hold off", "without")
+_NEGATION_PREFIXES_KO = ("하지 않", "금지", "피하", "회피", "보류", "말 것", "금물")
 
 
 def apply_phase_decision_guardrails(
@@ -113,10 +116,12 @@ def apply_phase_decision_guardrails(
     initially_high_confidence = _is_high_confidence(getattr(result, "confidence_level", ""))
 
     if core_degraded and initially_high_confidence:
-        result.confidence_level = "Medium" if language == "en" else "中"
+        result.confidence_level = "Medium" if language == "en" else "보통" if language == "ko" else "中"
         reason = (
             "Core quote, daily-bar, or technical data is degraded; high confidence was capped."
             if language == "en"
+            else "핵심 시세, 일봉 또는 기술 데이터 품질이 낮아 높은 신뢰도를 제한했습니다."
+            if language == "ko"
             else "核心行情、日线或技术数据受限，已限制高置信结论。"
         )
         _append_reason(phase_decision, reason)
@@ -131,18 +136,22 @@ def apply_phase_decision_guardrails(
         reason = (
             "Current market phase does not support immediate intraday buy/sell action."
             if language == "en"
+            else "현재 시장 구간에서는 즉시 장중 매수·매도 행동을 지원하지 않습니다."
+            if language == "ko"
             else "当前市场阶段不支持即时盘中买卖动作。"
         )
         _append_reason(phase_decision, reason)
         adjustments.append("non_intraday_action_adjusted")
         if initially_high_confidence:
-            result.confidence_level = "Low" if language == "en" else "低"
+            result.confidence_level = "Low" if language == "en" else "낮음" if language == "ko" else "低"
             adjustments.append("confidence_capped_non_intraday_action")
 
     if phase in INTRADAY_PHASES and _contains_postmarket_recap(result, phase_decision, language=language):
         reason = (
             "Intraday output contained post-market recap wording; replaced with phase-safe action wording."
             if language == "en"
+            else "장중 출력에 장후 복기 표현이 있어 현재 장 구분에 맞는 행동 문구로 교체했습니다."
+            if language == "ko"
             else "盘中输出包含盘后复盘口吻，已替换为阶段安全动作表述。"
         )
         _replace_postmarket_recap_fields(result, phase_decision, language=language)
@@ -212,6 +221,8 @@ def _phase_warning_limitations(summary: Optional[Mapping[str, Any]], *, language
         return []
     if language == "en":
         return [f"market phase warning: {item}" for item in warnings]
+    if language == "ko":
+        return [f"시장 장 구분 경고: {item}" for item in warnings]
     return [f"市场阶段提醒：{item}" for item in warnings]
 
 
@@ -228,7 +239,7 @@ def _merge_limitations(*groups: Any, limit: int = 5) -> List[str]:
 
 def _is_high_confidence(value: Any) -> bool:
     text = _safe_text(value).lower()
-    return text in {"高", "high"}
+    return text in {"高", "high", "높음"}
 
 
 def _has_immediate_buy_sell_signal(
@@ -244,7 +255,7 @@ def _has_immediate_buy_sell_signal(
             phase_decision.get("immediate_action"),
         )
     ).lower()
-    immediate_markers = _IMMEDIATE_ACTION_MARKERS_EN if language == "en" else _IMMEDIATE_ACTION_MARKERS_ZH
+    immediate_markers = _IMMEDIATE_ACTION_MARKERS_EN if language == "en" else _IMMEDIATE_ACTION_MARKERS_KO if language == "ko" else _IMMEDIATE_ACTION_MARKERS_ZH
     if _contains_non_negated_marker(haystack, immediate_markers, language=language):
         return True
     return _safe_text(getattr(result, "decision_type", "")).lower() in {"buy", "sell"}
@@ -268,9 +279,9 @@ def _contains_non_negated_marker(text: str, markers: tuple[str, ...], *, languag
 
 
 def _is_negated_marker(text: str, marker_index: int, *, language: str) -> bool:
-    window = 24 if language == "en" else 8
+    window = 24 if language in {"en", "ko"} else 8
     prefix = text[max(0, marker_index - window):marker_index].rstrip()
-    negations = _NEGATION_PREFIXES_EN if language == "en" else _NEGATION_PREFIXES_ZH
+    negations = _NEGATION_PREFIXES_EN if language == "en" else _NEGATION_PREFIXES_KO if language == "ko" else _NEGATION_PREFIXES_ZH
     return any(prefix.endswith(item) for item in negations)
 
 
@@ -285,7 +296,7 @@ def _contains_postmarket_recap(result: "AnalysisResult", phase_decision: Mapping
         getattr(result, "analysis_summary", ""),
         phase_decision.get("immediate_action"),
     )
-    patterns = _EN_POSTMARKET_RECAP_PATTERNS if language == "en" else _ZH_POSTMARKET_RECAP_PATTERNS
+    patterns = _patterns(language)
     return any(_contains_any(value, patterns) for value in values)
 
 
@@ -306,6 +317,8 @@ def _replace_postmarket_recap_fields(
         "This is an intraday phase; use live state, watch conditions, and the next "
         "check point rather than post-market recap wording."
         if language == "en"
+        else "현재는 장중 구간입니다. 장후 복기 표현 대신 실시간 상태, 관찰 조건과 다음 확인 시점을 기준으로 판단하세요."
+        if language == "ko"
         else "当前处于盘中阶段，应以实时状态、观察条件和下一次检查点为准，避免盘后复盘口径。"
     )
     if _contains_any(core.get("one_sentence"), _patterns(language)):
@@ -329,13 +342,13 @@ def _append_reason(phase_decision: Dict[str, Any], reason: str) -> None:
 
 def _adjustment_limitation_text(adjustment: str, *, language: str) -> str:
     if adjustment == "postmarket_recap_wording_adjusted":
-        return "post-market recap wording adjusted" if language == "en" else "已修正盘后复盘口吻"
+        return "post-market recap wording adjusted" if language == "en" else "장후 복기 표현 수정" if language == "ko" else "已修正盘后复盘口吻"
     if adjustment == "non_intraday_action_adjusted":
-        return "non-intraday immediate action adjusted" if language == "en" else "非盘中阶段已修正即时买卖动作"
+        return "non-intraday immediate action adjusted" if language == "en" else "비장중 구간의 즉시 매매 행동 수정" if language == "ko" else "非盘中阶段已修正即时买卖动作"
     if adjustment == "confidence_capped_non_intraday_action":
-        return "confidence capped for non-intraday action" if language == "en" else "非盘中阶段已限制买卖置信度"
+        return "confidence capped for non-intraday action" if language == "en" else "비장중 행동의 신뢰도 제한" if language == "ko" else "非盘中阶段已限制买卖置信度"
     if adjustment == "confidence_capped_core_data_degraded":
-        return "confidence capped due to degraded core data" if language == "en" else "核心数据受限已降低置信度"
+        return "confidence capped due to degraded core data" if language == "en" else "핵심 데이터 품질 저하로 신뢰도 제한" if language == "ko" else "核心数据受限已降低置信度"
     return adjustment
 
 
@@ -343,12 +356,14 @@ def _safe_wait_action(language: str) -> str:
     return (
         "Wait for intraday confirmation; do not chase."
         if language == "en"
+        else "장중 확인을 기다리고 추격 매수하지 마세요."
+        if language == "ko"
         else "等待盘中确认，禁止追高。"
     )
 
 
 def _patterns(language: str) -> tuple[str, ...]:
-    return _EN_POSTMARKET_RECAP_PATTERNS if language == "en" else _ZH_POSTMARKET_RECAP_PATTERNS
+    return _EN_POSTMARKET_RECAP_PATTERNS if language == "en" else _KO_POSTMARKET_RECAP_PATTERNS if language == "ko" else _ZH_POSTMARKET_RECAP_PATTERNS
 
 
 def _contains_any(value: Any, patterns: tuple[str, ...]) -> bool:

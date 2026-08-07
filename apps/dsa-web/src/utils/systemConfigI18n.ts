@@ -22,6 +22,16 @@ const categoryTitleMap: Record<UiLanguage, Record<SystemConfigCategory, string>>
     backtest: 'Backtest',
     uncategorized: 'Other',
   },
+  ko: {
+    base: '기본 설정',
+    data_source: '데이터 소스',
+    ai_model: 'AI 모델',
+    notification: '알림',
+    system: '시스템',
+    agent: '에이전트',
+    backtest: '백테스트',
+    uncategorized: '기타',
+  },
 };
 
 const categoryDescriptionMap: Record<UiLanguage, Partial<Record<SystemConfigCategory, string>>> = {
@@ -44,6 +54,16 @@ const categoryDescriptionMap: Record<UiLanguage, Partial<Record<SystemConfigCate
     agent: 'Manage Agent mode, strategies, and multi-agent orchestration.',
     backtest: 'Manage backtest switches, evaluation windows, and engine parameters.',
     uncategorized: 'Other uncategorized settings.',
+  },
+  ko: {
+    base: '관심 종목과 기본 실행 옵션을 관리합니다.',
+    data_source: '시세 데이터 소스와 우선순위 정책을 관리합니다.',
+    ai_model: '모델 서비스, 모델 이름과 추론 옵션을 관리합니다.',
+    notification: '봇, Webhook과 알림 전송을 관리합니다.',
+    system: '스케줄, 로그, 포트 등 시스템 옵션을 관리합니다.',
+    agent: '에이전트 모드, 전략과 다중 에이전트 구성을 관리합니다.',
+    backtest: '백테스트 사용 여부, 평가 기간과 엔진 옵션을 관리합니다.',
+    uncategorized: '분류되지 않은 기타 설정입니다.',
   },
 };
 
@@ -206,6 +226,32 @@ const fieldTitleMap: Record<string, string> = {
   BACKTEST_MIN_AGE_DAYS: '回测最小历史天数',
   BACKTEST_ENGINE_VERSION: '回测引擎版本',
   BACKTEST_NEUTRAL_BAND_PCT: '回测中性区间阈值（%）',
+};
+
+const fieldTitleMapKo: Record<string, string> = {
+  STOCK_LIST: '관심 종목 목록',
+  REPORT_LANGUAGE: '보고서 언어',
+  REPORT_TYPE: '보고서 유형',
+  REPORT_SHOW_LLM_MODEL: '보고서에 LLM 모델 표시',
+  LITELLM_MODEL: '기본 모델',
+  LITELLM_FALLBACK_MODELS: '대체 모델',
+  LLM_CHANNELS: 'LLM 채널 목록',
+  LLM_TEMPERATURE: '생성 온도',
+  GENERATION_BACKEND: '분석 생성 방식',
+  GENERATION_FALLBACK_BACKEND: '대체 생성 방식',
+  ENABLE_REALTIME_QUOTE: '실시간 시세 사용',
+  ENABLE_REALTIME_TECHNICAL_INDICATORS: '장중 실시간 기술 지표',
+  ENABLE_CHIP_DISTRIBUTION: '매물대 분석 사용',
+  REALTIME_SOURCE_PRIORITY: '실시간 데이터 소스 우선순위',
+  SCHEDULE_ENABLED: '정기 실행 사용',
+  SCHEDULE_TIME: '정기 실행 시각',
+  SCHEDULE_TIMES: '정기 실행 시각 목록',
+  MARKET_REVIEW_ENABLED: '시장 복기 사용',
+  ADMIN_AUTH_ENABLED: '관리자 인증 사용',
+  WEBUI_HOST: 'WebUI 호스트',
+  WEBUI_PORT: 'WebUI 포트',
+  DATABASE_PATH: '데이터베이스 경로',
+  LOG_LEVEL: '로그 수준',
 };
 
 const fieldDescriptionMap: Record<string, string> = {
@@ -384,6 +430,7 @@ const fieldOptionLabelMap: Record<string, Record<string, string>> = {
   REPORT_LANGUAGE: {
     zh: '中文',
     en: '英文',
+    ko: '韩语',
     chinese: '中文',
     english: '英文',
   },
@@ -467,6 +514,7 @@ const fieldOptionLabelMapEn: Record<string, Record<string, string>> = {
   REPORT_LANGUAGE: {
     zh: 'Chinese',
     en: 'English',
+    ko: 'Korean',
     chinese: 'Chinese',
     english: 'English',
   },
@@ -535,6 +583,17 @@ const fieldOptionLabelMapEn: Record<string, Record<string, string>> = {
   },
 };
 
+const fieldOptionLabelMapKo: Record<string, Record<string, string>> = {
+  REPORT_TYPE: { simple: '간단히', full: '전체', brief: '요약' },
+  REPORT_LANGUAGE: { zh: '중국어', en: '영어', ko: '한국어', chinese: '중국어', english: '영어', korean: '한국어' },
+  NOTIFICATION_MIN_SEVERITY: { '': '미설정', 'not set': '미설정', info: '안내', warning: '경고', error: '오류', critical: '심각' },
+  MARKET_REVIEW_COLOR_SCHEME: { green_up: '상승 녹색 / 하락 빨간색', red_up: '상승 빨간색 / 하락 녹색' },
+  GENERATION_BACKEND: { litellm: '기본 모델 설정', codex_cli: 'Codex CLI (실험적)' },
+  GENERATION_FALLBACK_BACKEND: { '': '사용 안 함', litellm: '기본 모델 설정' },
+  LOG_LEVEL: { debug: '디버그', info: '정보', warning: '경고', error: '오류', critical: '심각' },
+  MARKET_REVIEW_REGION: { cn: '중국 A주', hk: '홍콩', us: '미국', both: '전체 시장' },
+};
+
 function normalizeOptionToken(raw: string): string {
   return raw.trim().toLowerCase();
 }
@@ -559,6 +618,12 @@ export function getFieldTitleZh(key: string, fallback?: string): string {
   return fieldTitleMap[key] || fallback || key;
 }
 
+export function getFieldTitle(key: string, fallback?: string, locale: UiLanguage = 'zh'): string {
+  if (locale === 'zh') return getFieldTitleZh(key, fallback);
+  if (locale === 'ko') return fieldTitleMapKo[key] || fallback || key;
+  return fallback || key;
+}
+
 export function getFieldDescriptionZh(key: string, fallback?: string): string {
   return fieldDescriptionMap[key] || fallback || '';
 }
@@ -573,7 +638,9 @@ export function getFieldOptionLabel(
   fallbackLabel?: string,
   locale: UiLanguage = 'zh',
 ): string {
-  const map = locale === 'en' ? fieldOptionLabelMapEn[key] : fieldOptionLabelMap[key];
+  const map = locale === 'zh'
+    ? fieldOptionLabelMap[key]
+    : locale === 'ko' ? fieldOptionLabelMapKo[key] ?? fieldOptionLabelMapEn[key] : fieldOptionLabelMapEn[key];
   if (!map) {
     return fallbackLabel ?? value;
   }

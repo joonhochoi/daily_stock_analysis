@@ -39,7 +39,7 @@ export interface MarketReviewAccepted {
 
 // ============ Report Types ============
 
-export type ReportLanguage = 'zh' | 'en';
+export type ReportLanguage = 'zh' | 'en' | 'ko';
 
 export type MarketPhaseValue =
   | 'premarket'
@@ -92,7 +92,12 @@ export type SentimentLabel =
   | 'Bearish'
   | 'Neutral'
   | 'Bullish'
-  | 'Very Bullish';
+  | 'Very Bullish'
+  | '매우 비관적'
+  | '비관적'
+  | '중립'
+  | '낙관적'
+  | '매우 낙관적';
 
 export type DecisionAction = 'buy' | 'add' | 'hold' | 'reduce' | 'sell' | 'watch' | 'avoid' | 'alert';
 
@@ -500,6 +505,13 @@ export const getSentimentLabel = (score: number, language: ReportLanguage = 'zh'
     if (score <= 60) return 'Neutral';
     if (score <= 80) return 'Bullish';
     return 'Very Bullish';
+  }
+  if (language === 'ko') {
+    if (score <= 20) return '매우 비관적';
+    if (score <= 40) return '비관적';
+    if (score <= 60) return '중립';
+    if (score <= 80) return '낙관적';
+    return '매우 낙관적';
   }
   if (score <= 20) return '极度悲观';
   if (score <= 40) return '悲观';

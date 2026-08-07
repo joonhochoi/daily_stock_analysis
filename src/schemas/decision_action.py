@@ -25,14 +25,14 @@ _ACTION_VALUES = set(get_args(DecisionAction))
 _NON_STOCK_REPORT_TYPES = {"market_review"}
 
 _ACTION_LABELS: Dict[str, Dict[str, str]] = {
-    "buy": {"zh": "买入", "en": "Buy"},
-    "add": {"zh": "加仓", "en": "Add"},
-    "hold": {"zh": "持有", "en": "Hold"},
-    "reduce": {"zh": "减仓", "en": "Reduce"},
-    "sell": {"zh": "卖出", "en": "Sell"},
-    "watch": {"zh": "观望", "en": "Watch"},
-    "avoid": {"zh": "回避", "en": "Avoid"},
-    "alert": {"zh": "预警", "en": "Alert"},
+    "buy": {"zh": "买入", "en": "Buy", "ko": "매수"},
+    "add": {"zh": "加仓", "en": "Add", "ko": "비중 확대"},
+    "hold": {"zh": "持有", "en": "Hold", "ko": "보유"},
+    "reduce": {"zh": "减仓", "en": "Reduce", "ko": "비중 축소"},
+    "sell": {"zh": "卖出", "en": "Sell", "ko": "매도"},
+    "watch": {"zh": "观望", "en": "Watch", "ko": "관망"},
+    "avoid": {"zh": "回避", "en": "Avoid", "ko": "회피"},
+    "alert": {"zh": "预警", "en": "Alert", "ko": "주의"},
 }
 
 _EXPLICIT_ALIASES: Dict[str, DecisionAction] = {
@@ -41,6 +41,17 @@ _EXPLICIT_ALIASES: Dict[str, DecisionAction] = {
     "trim": "reduce",
     "strong sell": "sell",
     "wait": "watch",
+    "강력 매수": "buy",
+    "적극 매수": "buy",
+    "매수": "buy",
+    "비중 확대": "add",
+    "보유": "hold",
+    "관망": "watch",
+    "비중 축소": "reduce",
+    "매도": "sell",
+    "강력 매도": "sell",
+    "회피": "avoid",
+    "주의": "alert",
 }
 
 _ACTION_PHRASES: Dict[DecisionAction, tuple[str, ...]] = {
