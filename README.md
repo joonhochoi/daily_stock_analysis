@@ -1,287 +1,531 @@
 <div align="center">
 
-# 📈 股票智能分析系统
+# 📈 AI 주식 분석 시스템
 
-[![GitHub stars](https://img.shields.io/github/stars/ZhuLinsen/daily_stock_analysis?style=social)](https://github.com/ZhuLinsen/daily_stock_analysis/stargazers)
-[![CI](https://github.com/ZhuLinsen/daily_stock_analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/ZhuLinsen/daily_stock_analysis/actions/workflows/ci.yml)
+[![GitHub stars](https://img.shields.io/github/stars/joonhochoi/daily_stock_analysis?style=social)](https://github.com/joonhochoi/daily_stock_analysis/stargazers)
+[![CI](https://github.com/joonhochoi/daily_stock_analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/joonhochoi/daily_stock_analysis/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Ready-2088FF?logo=github-actions&logoColor=white)](https://github.com/features/actions)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/r/zhulinsen/daily_stock_analysis)
 
 <p align="center">
-  <img src="https://trendshift.io/api/badge/trendshift/repositories/18527/daily?language=Python" alt="#1 Python Repository Of The Day | Trendshift" width="250" height="55"/>&nbsp;<a href="https://hellogithub.com/repository/ZhuLinsen/daily_stock_analysis" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=6daa16e405ce46ed97b4a57706aeb29f&claim_uid=pfiJMqhR9uvDGlT&theme=neutral" alt="Featured｜HelloGitHub" width="230" /></a>
+  <img src="https://trendshift.io/api/badge/trendshift/repositories/18527/daily?language=Python" alt="Trendshift 오늘의 Python 저장소 1위" width="250" height="55"/>&nbsp;<a href="https://hellogithub.com/repository/ZhuLinsen/daily_stock_analysis" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=6daa16e405ce46ed97b4a57706aeb29f&claim_uid=pfiJMqhR9uvDGlT&theme=neutral" alt="HelloGitHub 추천 프로젝트" width="230" /></a>
 </p>
 
-> 🤖 基于 AI 大模型的 A股/港股/美股/日股/韩股自选股智能分析系统，每日自动分析并推送「决策仪表盘」到企业微信/飞书/Telegram/Discord/Slack/邮箱
+> 🤖 AI 대규모 언어 모델을 이용해 중국 A주·홍콩주·미국주·일본주·한국주 관심 종목을 분석하고, 매일 “의사결정 대시보드”를 생성해 다양한 채널로 전송하는 주식 분석 시스템
 
-[**产品预览**](#-产品预览) · [**功能特性**](#-功能特性) · [**快速开始**](#-快速开始) · [**推送效果**](#-推送效果) · [**文档中心**](docs/INDEX.md) · [**完整指南**](docs/full-guide.md)
+[**제품 미리보기**](#-제품-미리보기) · [**주요 기능**](#-주요-기능) · [**빠른 시작**](#-빠른-시작) · [**프로젝트 구조**](#-프로젝트-구조) · [**한글화 현황**](#-한글화-현황과-개발-방향) · [**문서 센터**](docs/INDEX.md)
 
-简体中文 | [English](docs/README_EN.md) | [繁體中文](docs/README_CHT.md)
+한국어 | [简体中文](README_CN.md) | [English](docs/README_EN.md) | [繁體中文](docs/README_CHT.md)
 
 </div>
 
-## 💖 赞助商 (Sponsors)
+> [!IMPORTANT]
+> 이 저장소는 한국어 문서화를 우선하는 포크입니다. 현재 루트 문서는 한국어이지만 제품의 Web UI와 보고서 출력 언어는 아직 중국어(`zh`)와 영어(`en`)만 지원합니다. 한국어 UI·보고서는 후속 기능 작업 범위이며, 현재 지원 상태는 [한글화 현황](#-한글화-현황과-개발-방향)을 확인해 주세요.
+
+## 💖 스폰서
+
 <div align="center">
   <p align="center">
-    <a href="https://open.anspire.cn/?share_code=QFBC0FYC" target="_blank"><img src="./docs/assets/anspire.png" alt="Anspire Open 一站式模型和搜索服务" width="300" height="141" style="width: 300px; height: 141px; object-fit: contain;"></a>
-    <a href="https://serpapi.com/baidu-search-api?utm_source=github_daily_stock_analysis" target="_blank"><img src="./docs/assets/serpapi_banner_zh.png" alt="轻松抓取搜索引擎上的实时金融新闻数据 - SerpApi" width="300" height="141" style="width: 300px; height: 141px; object-fit: contain;"></a>
+    <a href="https://open.anspire.cn/?share_code=QFBC0FYC" target="_blank"><img src="./docs/assets/anspire.png" alt="Anspire Open 통합 모델 및 검색 서비스" width="300" height="141" style="width: 300px; height: 141px; object-fit: contain;"></a>
+    <a href="https://serpapi.com/baidu-search-api?utm_source=github_daily_stock_analysis" target="_blank"><img src="./docs/assets/serpapi_banner_zh.png" alt="실시간 금융 뉴스 검색 데이터 - SerpApi" width="300" height="141" style="width: 300px; height: 141px; object-fit: contain;"></a>
   </p>
 </div>
 
-
-## 🖥️ 产品预览
+## 🖥️ 제품 미리보기
 
 <p align="center">
-  <img src="docs/assets/readme_workspace_tour_20260510.gif" alt="DSA Web 工作台演示" width="720">
+  <img src="docs/assets/readme_workspace_tour_20260510.gif" alt="DSA Web 워크스페이스 데모" width="720">
 </p>
 
-## ✨ 功能特性
+## ✨ 주요 기능
 
-| 能力 | 覆盖内容 |
-|------|------|
-| AI 决策报告 | 核心结论、评分、趋势、买卖点位、风险警报、催化因素、操作检查清单 |
-| 多市场数据聚合 | A股、港股、美股、ETF：行情、K 线、技术指标、资金流、筹码、新闻、公告和基本面；日股/韩股（`.T` / `.KS` / `.KQ`）：YFinance 日线与基础行情、技术指标可用，`capital_flow`、`dragon_tiger`、`boards` 与部分高阶区块会按市场边界降级为 `not_supported`（见 [市场支持边界](docs/market-support.md)） |
-| Web / 桌面工作台 | 手动分析、任务进度、历史报告、完整 Markdown、回测、持仓、配置管理、浅色 / 深色主题 |
-| Agent 策略问股 | 多轮追问，支持均线、缠论、波浪、趋势、热点、事件、成长、预期等 15 种内置策略，覆盖 Web/Bot/API |
-| 智能导入与补全 | 图片、CSV/Excel、剪贴板导入；股票代码/名称/拼音/别名补全 |
-| 自动化与推送 | GitHub Actions、Docker、本地定时任务、FastAPI 服务和企业微信/飞书/Telegram/Discord/Slack/邮件推送 |
+| 기능 | 현재 제공 범위 |
+| --- | --- |
+| AI 의사결정 보고서 | 핵심 결론, 점수, 추세, 매수·매도 구간, 위험 경보, 촉매 요인, 실행 체크리스트 |
+| 다중 시장 데이터 집계 | A주·홍콩주·미국주·ETF의 시세, 일봉, 기술 지표, 자금 흐름, 매물대, 뉴스, 공시, 기본면. 일본주 `.T`와 한국주 `.KS`/`.KQ`는 YFinance 일봉·기본 시세·기술 지표 중심의 제한적 지원 |
+| Web·데스크톱 워크스페이스 | 수동 분석, 작업 진행률, 분석 기록, 전체 Markdown, 백테스트, 포트폴리오, 설정, 라이트·다크 테마 |
+| Agent 전략 질의 | Web/Bot/API에서 다회차 질문과 15개 내장 전략 지원. 이동평균, 추세, 파동, 이벤트, 성장성, 기대 재평가 등 |
+| 지능형 가져오기·검색 | 이미지, CSV/Excel, 클립보드에서 종목을 가져오고 코드·이름·병음·별칭으로 자동 완성 |
+| 포트폴리오·AI 제안·경보 | 보유 종목 관리, 위험 분석, 구조화된 DecisionSignal, 규칙 기반 경보와 후행 성과 확인 |
+| 자동화·배포 | GitHub Actions, Docker, 로컬 스케줄러, FastAPI, Windows/macOS Electron 패키징 |
+| 다채널 알림 | 기업 WeChat, Feishu/Lark, Telegram, Discord, Slack, 이메일, PushPlus, ntfy, Gotify, Pushover, Server酱3, 사용자 정의 Webhook 등 |
+| 종목 선별·정보 소스 | AlphaSift 전략 선별, RSS/Atom 정보 소스, 뉴스 검색과 선택적 미국주 소셜 심리 데이터 |
 
-> 功能细节、字段契约、基本面 P0 超时语义、交易纪律、数据源优先级、Web/API 行为请看 [完整配置与部署指南](docs/full-guide.md)。
+일본·한국 시장은 실시간 시세, 자금 흐름, 용호방, 전체 시장 종목 목록, 완전한 기본면과 포트폴리오 환율을 보장하지 않습니다. 정확한 경계는 [시장 지원 범위](docs/market-support.md)를 참고하세요.
 
-### 技术栈与数据来源
+### 기술 스택과 데이터 소스
 
-| 类型 | 支持 |
-|------|------|
-| AI 模型 | [Anspire](https://open.anspire.cn/?share_code=QFBC0FYC)、[AIHubMix](https://aihubmix.com/?aff=CfMq)、Gemini、OpenAI 兼容、DeepSeek、通义千问、Claude、Ollama 本地模型等 |
-| 行情数据 | [TickFlow](https://tickflow.org/auth/register?ref=WDSGSPS5XC)、AkShare、Tushare、Pytdx、Baostock、YFinance、Longbridge |
-| 新闻搜索 | [Anspire](https://open.anspire.cn/?share_code=QFBC0FYC)、[SerpAPI](https://serpapi.com/baidu-search-api?utm_source=github_daily_stock_analysis)、[Tavily](https://tavily.com/)、[Bocha](https://open.bocha.cn/)、[Brave](https://brave.com/search/api/)、[MiniMax](https://platform.minimaxi.com/)、SearXNG |
-| 社交舆情 | [Stock Sentiment API](https://api.adanos.org/docs)（Reddit / X / Polymarket，仅美股，可选） |
+| 구분 | 구성 |
+| --- | --- |
+| 백엔드 | Python 3.10+, FastAPI, SQLAlchemy·SQLite, pandas, Jinja2, schedule |
+| Web | React 19, TypeScript, Vite 7, Tailwind CSS, Zustand, Recharts, Vitest, Playwright |
+| 데스크톱 | Electron 31, electron-builder, Windows NSIS·macOS DMG |
+| AI 모델 | [Anspire](https://open.anspire.cn/?share_code=QFBC0FYC), [AIHubMix](https://aihubmix.com/?aff=CfMq), Gemini, OpenAI 호환 API, DeepSeek, Qwen, Claude, Ollama 등. LiteLLM 기반 다중 채널과 로컬 CLI backend 지원 |
+| 시세·기본면 | [TickFlow](https://tickflow.org/auth/register?ref=WDSGSPS5XC), Efinance, AkShare, Tushare, Pytdx, Baostock, YFinance, Longbridge, Finnhub, Alpha Vantage |
+| 뉴스 검색 | [Anspire](https://open.anspire.cn/?share_code=QFBC0FYC), [SerpAPI](https://serpapi.com/baidu-search-api?utm_source=github_daily_stock_analysis), [Tavily](https://tavily.com/), [Bocha](https://open.bocha.cn/), [Brave](https://brave.com/search/api/), MiniMax, SearXNG |
+| 소셜 심리 | [Stock Sentiment API](https://api.adanos.org/docs)의 Reddit·X·Polymarket 데이터. 미국주 전용 선택 기능 |
 
-> 完整规则见 [数据源配置](docs/full-guide.md#数据源配置)。
+데이터 소스의 실제 우선순위는 시장, 설정과 사용 가능한 API 키에 따라 달라지며 실패 시 다음 공급자로 전환됩니다. 세부 규칙은 [전체 설정·배포 가이드](docs/full-guide.md)의 데이터 소스 항목을 확인하세요.
 
-## 🚀 快速开始
+## 🚀 빠른 시작
 
-### 方式一：[GitHub Actions（推荐）](https://www.bilibili.com/video/BV11FEb66EXG/)
+가장 간단한 사용 방법은 GitHub Actions입니다. Web UI 또는 데스크톱을 개발하려면 로컬 설치를 권장하고, 서버에 계속 실행하려면 Docker가 편리합니다.
 
-> 5 分钟完成部署，零成本，无需服务器。
+### 방법 1: GitHub Actions
 
+> 서버 없이 정해진 시간에 자동 분석하고 알림을 받는 방식입니다. API 제공자의 요금·무료 한도는 별도입니다.
+>
+> 원본 프로젝트의 [GitHub Actions 영상 튜토리얼](https://www.bilibili.com/video/BV11FEb66EXG/)도 참고할 수 있습니다.
 
-#### 1. Fork 本仓库
+#### 1. 저장소 Fork
 
-点击右上角 `Fork` 按钮（顺便点个 Star⭐ 支持一下）
+[현재 한국어 포크](https://github.com/joonhochoi/daily_stock_analysis)를 Fork합니다. 원본 프로젝트는 [ZhuLinsen/daily_stock_analysis](https://github.com/ZhuLinsen/daily_stock_analysis)입니다.
 
-#### 2. 配置 Secrets
+#### 2. AI 모델 설정
 
-`Settings` → `Secrets and variables` → `Actions` → `New repository secret`
+`Settings → Secrets and variables → Actions`에서 API 키는 **Repository secrets**, 일반 옵션은 **Repository variables**에 두는 것을 권장합니다. 아래 중 사용할 모델 키 하나 이상을 설정하세요.
 
-**AI 模型配置（至少配置一个）**
+| 이름 | 설명 | 권장 저장 위치 |
+| --- | --- | --- |
+| `ANSPIRE_API_KEYS` | Anspire 모델과 검색 서비스 키 | Secret |
+| `AIHUBMIX_KEY` | AIHubMix 통합 모델 키 | Secret |
+| `GEMINI_API_KEY` | Google Gemini API 키 | Secret |
+| `ANTHROPIC_API_KEY` | Anthropic Claude API 키 | Secret |
+| `OPENAI_API_KEY` | OpenAI 또는 OpenAI 호환 서비스 키 | Secret |
+| `OPENAI_BASE_URL`, `OPENAI_MODEL` | OpenAI 호환 endpoint와 모델 | Variable 또는 Secret |
 
-默认先选一个模型服务商并填写 API Key；需要多模型、图片识别、本地模型或高级路由时，再参考 [LLM 配置指南](docs/LLM_CONFIG_GUIDE.md)。
+다중 모델, fallback, 이미지 인식, Ollama 또는 로컬 CLI backend는 [LLM 설정 가이드](docs/LLM_CONFIG_GUIDE.md)를 참고하세요. GitHub Actions에서는 로컬 Ollama보다 외부 API 사용이 적합합니다.
 
-| Secret 名称 | 说明 | 必填 |
-|------------|------|:----:|
-| `ANSPIRE_API_KEYS` | [Anspire](https://open.anspire.cn/?share_code=QFBC0FYC) API Key，一Key同时启用全球热门大模型和联网搜索，无需科学上网，含免费额度 | **推荐** |
-| `AIHUBMIX_KEY` | [AIHubMix](https://aihubmix.com/?aff=CfMq) API Key，一Key切换使用全系模型，无需科学上网，本项目可享 10% 优惠 | **推荐** |
-| `GEMINI_API_KEY` | Google Gemini API Key | 可选 |
-| `ANTHROPIC_API_KEY` | Anthropic Claude API Key | 可选 |
-| `OPENAI_API_KEY` | OpenAI 兼容 API Key（支持 DeepSeek、通义千问等） | 可选 |
-| `OPENAI_BASE_URL` / `OPENAI_MODEL` | 使用 OpenAI 兼容服务时填写 | 可选 |
+#### 3. 관심 종목 설정
 
-> Ollama 更适合本地 / Docker 部署，GitHub Actions 推荐使用云端 API。
+`STOCK_LIST`를 Repository variable로 추가합니다. 같은 이름의 Secret도 workflow가 읽지만, 비밀 정보가 아닌 종목 목록은 variable이 더 적절합니다.
 
-**通知渠道配置（至少配置一个）**
+```text
+600519,HK00700,AAPL,7203.T,005930.KS
+```
 
-| Secret 名称 | 说明 |
-|------------|------|
-| `WECHAT_WEBHOOK_URL` | 企业微信机器人 |
-| `FEISHU_WEBHOOK_URL` | 飞书机器人 |
+대표 코드 형식:
+
+- 중국 A주: `600519`, `000001`
+- 홍콩주: `HK00700` 또는 `1810.HK`
+- 미국주: `AAPL`, `MSFT`
+- 일본주: `7203.T`
+- 한국 KOSPI: `005930.KS`
+- 한국 KOSDAQ: `035720.KQ`
+
+#### 4. 알림 채널 설정
+
+알림을 받으려면 아래 중 한 채널 이상을 설정합니다.
+
+| 이름 | 채널 |
+| --- | --- |
+| `WECHAT_WEBHOOK_URL` | 기업 WeChat 로봇 |
+| `FEISHU_WEBHOOK_URL` | Feishu/Lark Webhook |
 | `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` | Telegram |
 | `DISCORD_WEBHOOK_URL` | Discord Webhook |
 | `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID` | Slack Bot |
-| `EMAIL_SENDER` + `EMAIL_PASSWORD` | 邮件推送 |
+| `EMAIL_SENDER` + `EMAIL_PASSWORD` | SMTP 이메일 |
 
-更多渠道、签名校验、分组邮件、Markdown 转图片等配置见 [通知渠道详细配置](docs/full-guide.md#通知渠道详细配置)。
+PushPlus, ntfy, Gotify, Pushover, Server酱3, 사용자 정의 Webhook, 서명 검증, 이메일 그룹, Markdown 이미지 변환은 [알림 기능 문서](docs/notifications.md)와 [전체 가이드](docs/full-guide.md)를 참고하세요.
 
-**自选股配置（必填）**
+#### 5. 뉴스 검색 설정
 
-| Secret 名称 | 说明 | 必填 |
-|------------|------|:----:|
-| `STOCK_LIST` | 自选股代码，如 `600519,hk00700,AAPL,7203.T,005930.KS` | ✅ |
+뉴스와 여론·이벤트 분석 품질을 높이려면 검색 공급자 하나 이상을 설정하세요.
 
-**新闻源配置（推荐）**
+| 이름 | 용도 |
+| --- | --- |
+| `ANSPIRE_API_KEYS` | 중국어권 금융 뉴스와 AI 검색, 모델 키로도 재사용 가능 |
+| `SERPAPI_API_KEYS` | 검색 엔진 기반 실시간 금융 뉴스 보강 |
+| `TAVILY_API_KEYS` | 범용 뉴스 검색 |
+| `BOCHA_API_KEYS` | 중국어 검색과 AI 요약 |
+| `BRAVE_API_KEYS` | 프라이버시 중심 검색, 미국주 정보 보강 |
+| `MINIMAX_API_KEYS` | 구조화 검색 결과 |
+| `SEARXNG_BASE_URLS` | 자체 호스팅 SearXNG endpoint |
 
-新闻源会显著影响舆情、公告、事件和催化因素质量，建议至少配置一个搜索服务。
+검색 키를 설정하지 않아도 가능한 데이터만으로 분석하지만 뉴스·촉매·여론 구역은 제한될 수 있습니다.
 
-| Secret 名称 | 说明 | 必填 |
-|------------|------|:----:|
-| `ANSPIRE_API_KEYS` | [Anspire AI Search](https://aisearch.anspire.cn/)：中文内容特别优化，适合 A 股新闻和舆情检索；同一 Key 可复用为 Anspire 大模型 | **推荐** |
-| `SERPAPI_API_KEYS` | [SerpAPI](https://serpapi.com/baidu-search-api?utm_source=github_daily_stock_analysis)：搜索引擎结果补强，适合实时金融新闻 | **推荐** |
-| `TAVILY_API_KEYS` | [Tavily](https://tavily.com/)：通用新闻搜索 API | 可选 |
-| `BOCHA_API_KEYS` | [博查搜索](https://open.bocha.cn/)：中文搜索优化，支持 AI 摘要 | 可选 |
-| `BRAVE_API_KEYS` | [Brave Search](https://brave.com/search/api/)：隐私优先，美股资讯补强 | 可选 |
-| `MINIMAX_API_KEYS` | [MiniMax](https://platform.minimaxi.com/)：结构化搜索结果 | 可选 |
-| `SEARXNG_BASE_URLS` | SearXNG 自建实例：无配额兜底，适合私有部署 | 可选 |
+#### 6. Actions 활성화와 시험 실행
 
-更多搜索源、社交舆情和降级规则见 [搜索服务配置](docs/full-guide.md#搜索服务配置)。
+1. `Actions` 탭에서 workflow 사용을 허용합니다.
+2. `每日股票分析` workflow를 선택합니다.
+3. `Run workflow`에서 `full`, `market-only`, `stocks-only` 중 모드를 선택합니다.
+4. 거래일 검사를 건너뛰어야 하는 시험 실행에만 `force_run`을 사용합니다.
 
-#### 3. 启用 Actions
+기본 스케줄은 월요일~금요일 UTC 10:00, 즉 중국 표준시 18:00·한국 표준시 19:00입니다. A/H/US 휴장일에는 기본적으로 실행을 건너뛸 수 있으며, workflow 완료 후 `reports/`와 `logs/`가 30일 artifact로 업로드됩니다.
 
-`Actions` 标签 → `I understand my workflows, go ahead and enable them`
+### 방법 2: 로컬 실행
 
-#### 4. 手动测试
+원본 프로젝트의 [클라이언트 설정 영상 튜토리얼](https://www.bilibili.com/video/BV11FEb66Eyr/)도 함께 참고할 수 있습니다.
 
-`Actions` → `每日股票分析` → `Run workflow` → `Run workflow`
+#### 요구 사항
 
-#### 完成
+- Python 3.10 이상
+- Git
+- Web UI를 빌드할 경우 Node.js 20.19 이상 27 미만과 npm 10 이상
+- 일부 데이터·검색·LLM·알림 기능을 위한 인터넷 연결과 각 서비스 API 키
 
-默认每个**工作日 18:00（北京时间）**自动执行，也可手动触发。默认非交易日（含 A/H/US 节假日）不执行；强制运行、交易日检查、断点续传等规则见 [完整指南](docs/full-guide.md#定时任务配置)。
+#### Windows PowerShell
 
-### 方式二：[客户端配置教程](https://www.bilibili.com/video/BV11FEb66Eyr/) / 本地运行 / Docker 部署
+```powershell
+git clone https://github.com/joonhochoi/daily_stock_analysis.git
+Set-Location daily_stock_analysis
 
-```bash
-# 克隆项目
-git clone https://github.com/ZhuLinsen/daily_stock_analysis.git && cd daily_stock_analysis
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 
-# 安装依赖
-pip install -r requirements.txt
+Copy-Item .env.example .env
+notepad .env
 
-# 配置环境变量
-cp .env.example .env && vim .env
-
-# 运行分析
 python main.py
 ```
 
-常用命令：
+#### macOS·Linux·Git Bash
+
+```bash
+git clone https://github.com/joonhochoi/daily_stock_analysis.git
+cd daily_stock_analysis
+
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+cp .env.example .env
+${EDITOR:-vi} .env
+
+python main.py
+```
+
+최소한 `.env`에 관심 종목과 사용할 LLM 자격 증명을 설정합니다.
+
+```dotenv
+STOCK_LIST=005930.KS,AAPL,HK00700
+
+# 아래는 예시입니다. 실제로 사용할 공급자 하나 이상을 설정하세요.
+GEMINI_API_KEY=
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+```
+
+자주 쓰는 명령:
 
 ```bash
 python main.py --debug
 python main.py --dry-run
-python main.py --stocks 600519,hk00700,AAPL
+python main.py --stocks 005930.KS,AAPL
+python main.py --no-notify
+python main.py --check-notify
 python main.py --market-review
+python main.py --no-market-review
+python main.py --backtest
 python main.py --schedule
+python main.py --force-run
 python main.py --serve-only
 ```
 
-> Docker 部署、定时任务、云服务器访问请参考 [完整指南](docs/full-guide.md)；桌面客户端打包请参考 [桌面端打包说明](docs/desktop-package.md)。
+`--dry-run`은 데이터 경로만 확인하고 AI 분석을 생략합니다. `--force-run`은 거래일 보호 장치를 우회하므로 의도적인 시험에서만 사용하세요.
 
-## 📱 推送效果
+### 방법 3: Web UI
 
-### 决策仪表盘
-```
-🎯 2026-02-08 决策仪表盘
-共分析3只股票 | 🟢买入:0 🟡观望:2 🔴卖出:1
-
-📊 分析结果摘要
-⚪ 中钨高新(000657): 观望 | 评分 65 | 看多
-⚪ 永鼎股份(600105): 观望 | 评分 48 | 震荡
-🟡 新莱应材(300260): 卖出 | 评分 35 | 看空
-
-⚪ 中钨高新 (000657)
-📰 重要信息速览
-💭 舆情情绪: 市场关注其AI属性与业绩高增长，情绪偏积极，但需消化短期获利盘和主力流出压力。
-📊 业绩预期: 基于舆情信息，公司2025年前三季度业绩同比大幅增长，基本面强劲，为股价提供支撑。
-
-🚨 风险警报:
-
-风险点1：2月5日主力资金大幅净卖出3.63亿元，需警惕短期抛压。
-风险点2：筹码集中度高达35.15%，表明筹码分散，拉升阻力可能较大。
-风险点3：舆情中提及公司历史违规记录及重组相关风险提示，需保持关注。
-✨ 利好催化:
-
-利好1：公司被市场定位为AI服务器HDI核心供应商，受益于AI产业发展。
-利好2：2025年前三季度扣非净利润同比暴涨407.52%，业绩表现强劲。
-📢 最新动态: 【最新消息】舆情显示公司是AI PCB微钻领域龙头，深度绑定全球头部PCB/载板厂。2月5日主力资金净卖出3.63亿元，需关注后续资金流向。
-
----
-生成时间: 18:00
-```
-
-### 大盘复盘
-```
-🎯 2026-01-10 大盘复盘
-
-📊 主要指数
-- 上证指数: 3250.12 (🟢+0.85%)
-- 深证成指: 10521.36 (🟢+1.02%)
-- 创业板指: 2156.78 (🟢+1.35%)
-
-📈 市场概况
-上涨: 3920 | 下跌: 1349 | 涨停: 155 | 跌停: 3
-
-🔥 板块表现
-领涨: 互联网服务、文化传媒、小金属
-领跌: 保险、航空机场、光伏设备
-```
-
-## ⚙️ 配置说明
-
-完整环境变量、模型渠道、通知渠道、数据源优先级、交易纪律、基本面 P0 语义和部署说明请参考 [完整配置指南](docs/full-guide.md)。
-
-## 🖥️ Web 界面
-
-Web 工作台提供配置管理、任务监控、手动分析、历史报告、完整 Markdown 报告、Agent 问股、回测、持仓管理、智能导入和浅色 / 深色主题。启动方式：
+Web 워크스페이스는 설정 관리, 작업 진행 상태, 수동 분석, 기록, 전체 Markdown 보고서, Agent 질의, 백테스트, 포트폴리오, AI 제안, 경보, 종목 선별과 LLM 사용량 화면을 제공합니다.
 
 ```bash
-python main.py --webui
 python main.py --webui-only
 ```
 
-访问 `http://127.0.0.1:8000` 即可使用。认证、智能导入、搜索补全、历史报告复制、云服务器访问等细节见 [本地 WebUI 管理界面](docs/full-guide.md#本地-webui-管理界面)。
+기본 주소는 [http://127.0.0.1:8000](http://127.0.0.1:8000)이고 API 문서는 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)입니다. `WEBUI_AUTO_BUILD=true`이면 필요한 경우 Web frontend를 자동 빌드하므로 Node.js가 필요합니다.
 
-## 🤖 Agent 策略问股
+개발 중 frontend만 실행할 때:
 
-配置任意可用 AI API Key 后，Web `/chat` 页面即可使用策略问股；如需显式关闭可设置 `AGENT_MODE=false`。
+```bash
+cd apps/dsa-web
+npm ci
+npm run dev
+```
 
-- 支持均线金叉、缠论、波浪理论、多头趋势、热点题材、事件驱动、成长质量、预期重估等内置策略
-- 支持实时行情、K 线、技术指标、新闻和风险信息调用
-- 支持多轮追问、会话导出、发送到通知渠道和后台执行
-- 支持自定义策略文件与多 Agent 编排（实验性）
+인증을 사용하려면 `ADMIN_AUTH_ENABLED=true`를 설정하고 첫 접속에서 관리자 비밀번호를 만듭니다. 외부 공개 시에는 `WEBUI_HOST=0.0.0.0`만 설정해 직접 노출하기보다 HTTPS reverse proxy, 인증, 방화벽과 신뢰 프록시 설정을 함께 검토하세요.
 
-> Agent 具体参数、`skill` 命名兼容、多 Agent 模式和预算护栏见 [完整指南](docs/full-guide.md#本地-webui-管理界面) 与 [LLM 配置指南](docs/LLM_CONFIG_GUIDE.md)。
+### 방법 4: Docker
 
-## 🧩 相关项目 (Related Projects)
+`.env`를 만든 뒤 목적에 맞는 서비스를 시작합니다.
 
-> DSA 聚焦日常分析报告；下面两个同系列项目分别覆盖选股、策略验证与策略进化，适合按需延伸使用。它们当前独立维护，后续会优先探索与 DSA 的候选股导入、回测验证和报告联动。
+```bash
+# Web/API 서버
+docker compose -f docker/docker-compose.yml up -d server
 
-| 项目 | 定位 |
-|------|------|
-| [AlphaSift](https://github.com/ZhuLinsen/alphasift) | 多因子选股与全市场扫描，用于从股票池中提取候选标的 |
-| [AlphaEvo](https://github.com/ZhuLinsen/alphaevo) | 策略回测与自我进化，用于验证策略规则，并通过迭代探索策略参数与组合 |
+# 스케줄 분석기
+docker compose -f docker/docker-compose.yml up -d analyzer
 
-## 📬 联系与合作
+# 둘 다 실행
+docker compose -f docker/docker-compose.yml up -d analyzer server
+```
+
+`data/`, `logs/`, `reports/`, `strategies/`가 호스트에 연결됩니다. 전체 분석은 메모리 1GB 이상을 권장하며 512MB 환경에서는 단일 종목·낮은 동시성 등 제한된 구성이 적합합니다. 자세한 내용은 [배포 가이드](docs/DEPLOY.md)와 [전체 가이드](docs/full-guide.md)를 참고하세요.
+
+## 🧭 분석 흐름
+
+```text
+CLI / GitHub Actions / Web / Bot
+                │
+                ▼
+        설정 로드와 실행 진단
+                │
+                ▼
+  시장 판별·거래일·시장 단계 확인
+                │
+                ▼
+시세·일봉·기본면·뉴스·정보 소스 수집
+        │ 공급자 실패 시 fallback
+        ▼
+기술 분석 + 시장 컨텍스트 + LLM 분석
+                │
+                ▼
+구조화 결과·DecisionSignal·보고서 저장
+                │
+                ▼
+ Web 기록 / Markdown / 알림 / 백테스트
+```
+
+SQLite 데이터베이스 기본 위치는 `data/stock_analysis.db`입니다. 로그와 보고서는 각각 `logs/`, `reports/`에 저장되며 이 경로는 Git에서 제외됩니다.
+
+## 🗂️ 프로젝트 구조
+
+```text
+daily_stock_analysis/
+├─ main.py                     # CLI, 분석, 스케줄, 서비스 실행 진입점
+├─ server.py                   # FastAPI ASGI 진입점
+├─ api/                        # /api/v1 REST API와 인증·오류 처리
+├─ src/
+│  ├─ core/                    # 파이프라인, 시장 복기, 거래일, 백테스트
+│  ├─ services/                # 업무 서비스와 보고서·진단·작업 처리
+│  ├─ repositories/            # SQLite 데이터 접근 계층
+│  ├─ schemas/                 # 내부 데이터 계약
+│  ├─ agent/                   # Agent, 도구, 전략 라우팅, 대화 메모리
+│  └─ notification_sender/     # 채널별 알림 전송기
+├─ data_provider/              # 시장별 데이터 공급자와 fallback
+├─ bot/                        # Feishu, DingTalk, Discord Bot
+├─ strategies/                 # 15개 내장 자연어 YAML 전략
+├─ templates/                  # Jinja2 보고서 템플릿
+├─ apps/
+│  ├─ dsa-web/                 # React/Vite Web UI
+│  └─ dsa-desktop/             # Electron 데스크톱
+├─ tests/                      # pytest 테스트
+├─ scripts/                    # CI gate, 빌드, 진단, 인덱스 생성
+├─ docker/                     # Dockerfile과 Compose
+├─ docs/                       # 설정·배포·기능 계약 문서
+└─ .github/workflows/          # CI, 일일 분석, 릴리스 자동화
+```
+
+### 주요 API 영역
+
+FastAPI는 `/api/v1` 아래에 인증, Agent, 분석, 기록, 종목, 백테스트, 시스템 설정, LLM 사용량, 포트폴리오, 경보, DecisionSignal, AlphaSift, 정보 소스와 상태 확인 endpoint를 제공합니다. 실제 요청·응답 계약은 실행 중인 `/docs`와 [OpenAPI 스펙](docs/architecture/api_spec.json)을 기준으로 확인하세요.
+
+## 📱 보고서와 알림 예시
+
+아래는 기존 중국어 샘플의 형식을 한국어로 옮긴 예시입니다. 현재 코드에서 `REPORT_LANGUAGE`는 `zh` 또는 `en`만 지원하므로 같은 한국어 출력이 자동 생성된다는 의미는 아닙니다.
+
+### 종목 의사결정 대시보드
+
+```text
+🎯 2026-02-08 의사결정 대시보드
+분석 종목 3개 | 🟢매수:0 🟡관망:2 🔴매도:1
+
+📊 분석 결과 요약
+⚪ 종목 A(000657): 관망 | 점수 65 | 강세
+⚪ 종목 B(600105): 관망 | 점수 48 | 횡보
+🟡 종목 C(300260): 매도 | 점수 35 | 약세
+
+🚨 위험 경보
+- 단기 매도 압력과 자금 이탈 여부 확인
+- 매물 집중도와 상승 저항 점검
+- 공시·규제·재편 관련 위험 추적
+
+✨ 긍정적 촉매
+- 산업 성장과 핵심 공급망 수혜 가능성
+- 실적 성장과 현금 흐름 개선
+
+생성 시각: 18:00
+```
+
+### 시장 복기
+
+```text
+🎯 2026-01-10 시장 복기
+
+📊 주요 지수
+- 상하이 종합: 3250.12 (🟢 +0.85%)
+- 선전 성분: 10521.36 (🟢 +1.02%)
+- 차이넥스트: 2156.78 (🟢 +1.35%)
+
+📈 시장 개요
+상승: 3920 | 하락: 1349 | 상한가: 155 | 하한가: 3
+
+🔥 업종 흐름
+강세: 인터넷 서비스, 미디어, 희소 금속
+약세: 보험, 항공·공항, 태양광 장비
+```
+
+## ⚙️ 핵심 설정
+
+`.env.example`이 실행 가능한 설정 목록의 기준입니다. 파일이 크므로 처음에는 필요한 최소 항목만 채우고, Web 설정 화면 또는 관련 문서를 통해 기능별 설정을 추가하세요.
+
+| 영역 | 대표 설정 |
+| --- | --- |
+| 관심 종목 | `STOCK_LIST` |
+| 모델·라우팅 | `LLM_CHANNELS`, `LITELLM_MODEL`, 공급자별 API 키, `GENERATION_BACKEND` |
+| 보고서 | `REPORT_TYPE`, `REPORT_LANGUAGE`, `REPORT_SHOW_LLM_MODEL` |
+| 검색 | `ANSPIRE_API_KEYS`, `SERPAPI_API_KEYS`, `TAVILY_API_KEYS`, `SEARXNG_BASE_URLS` |
+| 데이터 | 공급자별 API 키와 `*_PRIORITY`, `REALTIME_SOURCE_PRIORITY` |
+| 스케줄 | `SCHEDULE_ENABLED`, `SCHEDULE_TIME`, `SCHEDULE_TIMES`, `MARKET_REVIEW_ENABLED` |
+| Web·인증 | `WEBUI_ENABLED`, `WEBUI_HOST`, `WEBUI_PORT`, `ADMIN_AUTH_ENABLED` |
+| 저장 | `DATABASE_PATH`, `SQLITE_WAL_ENABLED`, `SAVE_CONTEXT_SNAPSHOT` |
+| 알림 | 채널별 자격 증명, `NOTIFICATION_*_CHANNELS`, 중복 억제·조용한 시간 설정 |
+
+구성 검사는 다음 명령으로 확인할 수 있습니다.
+
+```bash
+python scripts/check_env.py
+python main.py --check-notify
+```
+
+비밀 값이 들어 있는 `.env`, 데이터베이스, 로그와 보고서는 커밋하지 마세요.
+
+## 🤖 Agent 전략 질의
+
+사용 가능한 AI API 키를 설정하면 Web의 `/chat`에서 전략 기반 종목 질의를 사용할 수 있습니다. 필요하면 `AGENT_MODE=false`로 명시적으로 끌 수 있습니다.
+
+- 이동평균 골든크로스, 추세, 박스권, 거래량 돌파, 파동, 이벤트, 성장성 등 15개 내장 전략
+- 실시간 시세, 일봉, 기술 지표, 뉴스, 포트폴리오와 위험 도구
+- 다회차 질문, 세션 저장·내보내기, 알림 전송, 백그라운드 실행
+- `strategies/*.yaml` 또는 `AGENT_SKILL_DIR`를 통한 사용자 전략
+- 실험적 다중 Agent 오케스트레이션과 모델 사용량 추적
+
+전략 파일은 제품 문서에서 “전략”이라고 부르지만 내부 API와 설정에서는 호환성을 위해 `skill`이라는 이름을 사용합니다.
+
+## 🌐 한글화 현황과 개발 방향
+
+### 현재 완료된 범위
+
+- 루트 협업 규칙과 프로젝트 README를 한국어 기준 문서로 전환
+- 전환 전 중국어 원문을 `AGENTS_CN.md`, `README_CN.md`에 보존
+- 한국 KOSPI `.KS`, KOSDAQ `.KQ` 종목의 제한적 분석·검색 인덱스 경로 확인
+- 한국어 작업에서 기존 중국어·영어 기능 계약을 깨뜨리지 않도록 저장소 규칙 정리
+
+### 아직 구현되지 않은 범위
+
+- Web UI의 `ko` locale과 한국어 언어 토글
+- `REPORT_LANGUAGE=ko` 보고서·알림·Prompt·고정 레이블
+- 데스크톱 시작·업데이트·오류 메시지의 전체 한국어 번역
+- FastAPI 문서, 설정 도움말, Bot 명령과 전체 `docs/`의 한국어판
+- 한국 시장 전용 실시간 데이터, 자금 흐름, 시장 복기, 산업·공시 공급자 보강
+
+### 기능 한글화 시 지켜야 할 순서
+
+1. 번역 대상의 안정된 키와 스키마를 먼저 정의합니다.
+2. Web은 `UiLanguage`, 저장 값, 브라우저 감지, 토글과 번역 사전을 함께 확장합니다.
+3. 보고서는 언어 정규화, 설정 검증, Prompt, Jinja 렌더링, 알림과 fallback을 함께 확장합니다.
+4. 기존 `zh`·`en` 동작을 유지하는 회귀 테스트와 `ko` 렌더링 테스트를 추가합니다.
+5. UI·보고서 변경 PR에는 실제 화면 또는 보고서 스크린샷을 첨부합니다.
+
+기능 개선은 한글화와 별개로 최소 단위로 진행하되, API/Schema·설정·Web·데스크톱·문서 사이의 계약을 한 번에 맞추는 것을 원칙으로 합니다.
+
+## 🧪 개발과 검증
+
+### 백엔드
+
+```bash
+python -m pip install -r requirements.txt
+python -m pip install flake8 pytest
+bash scripts/ci_gate.sh
+```
+
+`ci_gate.sh`는 Python 문법 검사, 치명적 flake8 규칙, 결정적 데이터 검사와 `network` marker를 제외한 pytest를 실행합니다.
+
+### Web
+
+```bash
+cd apps/dsa-web
+npm ci
+npm run test
+npm run lint
+npm run build
+```
+
+필요한 변경에서는 `npm run test:smoke`로 Playwright E2E를 추가합니다.
+
+### 데스크톱
+
+```powershell
+.\scripts\build-all.ps1
+```
+
+```bash
+cd apps/dsa-desktop
+npm test
+```
+
+기여 규칙, PR 절차와 검증 기준은 [AGENTS.md](AGENTS.md)와 [기여 가이드](docs/CONTRIBUTING.md)를 확인하세요.
+
+## 📚 문서 안내
+
+현재 세부 문서는 대부분 중국어 또는 영어이며, 실행 코드와 설정을 우선 기준으로 사용합니다.
+
+| 목적 | 문서 |
+| --- | --- |
+| 전체 설정과 실행 방식 | [전체 가이드](docs/full-guide.md) |
+| LLM 공급자와 다중 채널 | [LLM 설정 가이드](docs/LLM_CONFIG_GUIDE.md), [공급자 가이드](docs/llm-providers.md) |
+| 알림 | [알림 기능](docs/notifications.md) |
+| 배포 | [배포 가이드](docs/DEPLOY.md), [클라우드 WebUI](docs/deploy-webui-cloud.md) |
+| 데스크톱 | [데스크톱 패키징](docs/desktop-package.md) |
+| 시장별 지원 경계 | [시장 지원](docs/market-support.md) |
+| AI 제안과 경보 | [DecisionSignal](docs/decision-signals.md), [경보 센터](docs/alerts.md) |
+| API | [OpenAPI 스펙](docs/architecture/api_spec.json) |
+| 문제 해결 | [FAQ](docs/FAQ.md), [변경 이력](docs/CHANGELOG.md) |
+| 전체 문서 목록 | [문서 센터](docs/INDEX.md) |
+
+## 🧩 관련 프로젝트
+
+DSA는 일상 분석과 보고서에 집중합니다. 아래 프로젝트는 종목 선별과 전략 검증·진화를 보완하며 현재는 독립적으로 유지됩니다.
+
+| 프로젝트 | 역할 |
+| --- | --- |
+| [AlphaSift](https://github.com/ZhuLinsen/alphasift) | 다중 요인 종목 선별과 전체 시장 스캔 |
+| [AlphaEvo](https://github.com/ZhuLinsen/alphaevo) | 전략 백테스트, 규칙 검증과 반복적 파라미터 탐색 |
+
+## 📬 문의와 협력
 
 <table>
   <tr>
-    <td width="92" valign="top"><strong>合作邮箱</strong></td>
+    <td width="92" valign="top"><strong>협력 이메일</strong></td>
     <td valign="top">
       <a href="mailto:zhuls345@gmail.com">zhuls345@gmail.com</a><br>
-      项目咨询、部署支持与功能扩展
+      원본 프로젝트 문의, 배포 지원과 기능 확장
     </td>
     <td align="center" rowspan="3" valign="middle" width="148">
-      <a href="http://xhslink.com/m/tU520DWCKT" target="_blank"><img src="./docs/assets/xiaohongshu_tick.jpg" width="112" alt="小红书二维码"></a><br>
-      <sub>扫码关注小红书</sub>
+      <a href="http://xhslink.com/m/tU520DWCKT" target="_blank"><img src="./docs/assets/xiaohongshu_tick.jpg" width="112" alt="Xiaohongshu QR 코드"></a><br>
+      <sub>Xiaohongshu 팔로우</sub>
     </td>
   </tr>
   <tr>
-    <td width="92" valign="top"><strong>小红书</strong></td>
-    <td valign="top"><a href="http://xhslink.com/m/tU520DWCKT">欢迎关注小红书</a></td>
+    <td width="92" valign="top"><strong>원본 프로젝트</strong></td>
+    <td valign="top"><a href="https://github.com/ZhuLinsen/daily_stock_analysis">ZhuLinsen/daily_stock_analysis</a></td>
   </tr>
   <tr>
-    <td width="92" valign="top"><strong>问题反馈</strong></td>
-    <td valign="top"><a href="https://github.com/ZhuLinsen/daily_stock_analysis/issues">提交 Issue</a></td>
+    <td width="92" valign="top"><strong>문제 제보</strong></td>
+    <td valign="top"><a href="https://github.com/joonhochoi/daily_stock_analysis/issues">현재 포크 Issue</a></td>
   </tr>
 </table>
 
-## 📄 License
+## 📄 라이선스
 
 [MIT License](LICENSE) © 2026 ZhuLinsen
 
-欢迎在二次开发或引用时注明本仓库来源，感谢支持项目持续维护。
+원본 프로젝트와 기여자의 저작권·라이선스를 존중합니다. 재배포하거나 2차 개발 결과를 공개할 때 저장소 출처를 밝혀 주세요.
 
-## ⚠️ 免责声明
+## ⚠️ 면책 조항
 
-本项目仅供学习和研究使用，不构成任何投资建议。股市有风险，投资需谨慎。作者不对使用本项目产生的任何损失负责。
-
----
+이 프로젝트는 학습과 연구를 위한 도구이며 투자 자문을 제공하지 않습니다. 생성된 분석은 부정확하거나 지연될 수 있고, 모든 투자 판단과 결과의 책임은 사용자에게 있습니다.
