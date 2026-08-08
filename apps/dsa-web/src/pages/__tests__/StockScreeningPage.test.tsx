@@ -1,5 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { UiLanguageProvider } from '../../contexts/UiLanguageContext';
+import { UI_LANGUAGE_STORAGE_KEY } from '../../utils/uiLanguage';
 import StockScreeningPage from '../StockScreeningPage';
 
 const {
@@ -143,6 +145,24 @@ describe('StockScreeningPage', () => {
     });
     getHotspots.mockResolvedValue({ enabled: true, provider: 'akshare', hotspots: [], hotspotCount: 0 });
     window.sessionStorage.clear();
+    window.localStorage.removeItem(UI_LANGUAGE_STORAGE_KEY);
+  });
+
+  it('renders primary controls in Korean UI mode', async () => {
+    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'ko');
+    getAlphaSiftStatus.mockResolvedValueOnce({ enabled: true, available: true, installSpecIsDefault: true });
+
+    render(
+      <UiLanguageProvider>
+        <StockScreeningPage />
+      </UiLanguageProvider>,
+    );
+
+    expect(await screen.findByRole('heading', { name: 'AlphaSift 종목 선별' })).toBeInTheDocument();
+    expect(screen.getByText('인기 테마')).toBeInTheDocument();
+    expect(screen.getByText('전략 선택')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '종목 선별 실행' })).toBeInTheDocument();
+    expect(screen.getByText('종목 선별 결과')).toBeInTheDocument();
   });
 
   it('re-syncs enabled state when AlphaSift availability check fails after config is enabled', async () => {

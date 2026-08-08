@@ -34,10 +34,11 @@ def test_prepare_webui_frontend_assets_reuses_prebuilt_static_without_source(tmp
     with caplog.at_level(logging.INFO):
         assert webui_frontend.prepare_webui_frontend_assets() is True
 
-    assert "检测到可直接复用的前端静态产物" in caplog.text
-    assert "未找到前端项目，无法自动构建" not in caplog.text
-    assert "未检测到 npm，无法自动构建前端" not in caplog.text
-    assert "assets/ 目录不存在或无 CSS/JS 文件" not in caplog.text
+    assert "재사용 가능한 프런트엔드 정적 산출물을 찾았습니다" in caplog.text
+    assert "检测到可直接复用的前端静态产物" not in caplog.text
+    assert "프런트엔드 프로젝트를 찾지 못해 자동 빌드할 수 없습니다" not in caplog.text
+    assert "npm을 찾지 못해 프런트엔드를 자동 빌드할 수 없습니다" not in caplog.text
+    assert "디렉터리가 없거나 CSS/JS 파일이 없습니다" not in caplog.text
 
 
 def test_prepare_webui_frontend_assets_fails_without_static_or_source(tmp_path, monkeypatch, caplog):
@@ -49,7 +50,7 @@ def test_prepare_webui_frontend_assets_fails_without_static_or_source(tmp_path, 
     with caplog.at_level(logging.WARNING):
         assert webui_frontend.prepare_webui_frontend_assets() is False
 
-    assert "未找到前端项目，无法自动构建" in caplog.text
+    assert "프런트엔드 프로젝트를 찾지 못해 자동 빌드할 수 없습니다" in caplog.text
 
 
 def test_prepare_webui_frontend_assets_warns_when_assets_missing(tmp_path, monkeypatch, caplog):
@@ -68,8 +69,8 @@ def test_prepare_webui_frontend_assets_warns_when_assets_missing(tmp_path, monke
         result = webui_frontend.prepare_webui_frontend_assets()
 
     assert result is True  # function still returns True (index.html present)
-    assert "目录不存在或无 CSS/JS 文件" in caplog.text
-    assert "WebUI 将因缺少样式与脚本而显示异常" in caplog.text
+    assert "디렉터리가 없거나 CSS/JS 파일이 없습니다" in caplog.text
+    assert "WebUI가 비정상적으로 표시될 수 있습니다" in caplog.text
 
 
 def test_prepare_webui_frontend_assets_auto_build_disabled_warns_when_assets_missing(tmp_path, monkeypatch, caplog):
@@ -87,7 +88,7 @@ def test_prepare_webui_frontend_assets_auto_build_disabled_warns_when_assets_mis
         result = webui_frontend.prepare_webui_frontend_assets()
 
     assert result is True  # index.html present, still returns True
-    assert "目录不存在或无 CSS/JS 文件" in caplog.text
+    assert "디렉터리가 없거나 CSS/JS 파일이 없습니다" in caplog.text
 
 
 def test_has_static_assets_returns_false_for_missing_dir(tmp_path):

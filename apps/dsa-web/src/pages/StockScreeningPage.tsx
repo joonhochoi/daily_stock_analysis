@@ -39,10 +39,51 @@ import {
 } from '../api/alphasift';
 import { formatParsedApiError, getParsedApiError, toApiErrorMessage, type ParsedApiError } from '../api/error';
 import { AppPage, Button, InlineAlert } from '../components/common';
+import { useUiLanguage } from '../contexts/UiLanguageContext';
+import type { UiLanguage } from '../i18n/uiText';
 
-const MARKETS = [{ id: 'cn', label: 'A 股' }];
+const MARKETS = [{ id: 'cn' }];
 const SCREEN_TASK_STORAGE_KEY = 'dsa.alphasift.activeScreenTask.v1';
 const SCREEN_TASK_POLL_INTERVAL_MS = 2000;
+
+const SCREEN_TEXT: Record<UiLanguage, Record<string, string>> = {
+  zh: {
+    marketCn: 'A 股', title: 'AlphaSift 选股', description: '开启后通过内置 AlphaSift 适配层生成候选股票，并补充 DSA 数据与新闻',
+    enabled: '选股已开启', disabled: '选股未开启', unavailableTitle: 'AlphaSift 适配层不可用', unavailableMessage: '适配层当前不可用，请先确认后端已安装依赖并重启服务。',
+    disabledTitle: 'AlphaSift 未开启', disabledMessage: '点击后写入 ALPHASIFT_ENABLED=true；若适配层缺失请更新依赖或重建后端。', enabling: '开启中...', enable: '开启 AlphaSift',
+    riskTitle: '实验功能与风险提示', riskMessage: 'AlphaSift 选股仍处于实验性质，结果仅用于研究和辅助判断，不构成投资建议；市场有风险，交易决策和损益由使用者自行承担。',
+    taskRunning: '选股任务运行中', taskDefault: '正在执行 AlphaSift 选股', taskId: '任务 ID', requestFailed: '调用失败',
+    hotspotTitle: '热点题材', hotspotDescription: '来自 AlphaSift 最新 hotspot 能力；capital_heat、balanced_alpha 等策略会把 theme_heat 纳入评分。', collapseHotspots: '收起热点题材', expandHotspots: '展开热点题材', refreshing: '刷新中...', refreshHotspots: '刷新热点题材', updatedAt: '更新时间',
+    strategyTitle: '选择策略', strategyDescription: '策略来自 AlphaSift；DSA 会对候选补充行情、基本面和新闻上下文。', strategiesLoading: '正在读取可用策略...', parameters: '参数设置', market: '市场', strategyParameter: '策略参数', resultCount: '返回数量', screening: '筛选中...', runScreening: '运行选股',
+    screeningRunning: '选股运行中', screeningComplete: '选股完成', waitToRun: '等待运行', waitToEnable: '等待开启', currentStrategy: '当前策略', task: '任务', snapshot: '快照', afterFilter: '过滤后', candidates: '候选', ranked: '已重排', notRanked: '未重排', coverage: '覆盖', enrichment: 'DSA增强',
+    llmDegraded: 'LLM 已降级', hint: 'AlphaSift 提示', results: '选股结果', resultDescription: 'AlphaSift 返回候选后，DSA 会对前几名补充行情、基本面、新闻和辅助摘要。', candidateCount: '{count} 条候选', noResults: '暂无结果', noResultsDescription: '开启 AlphaSift 后点击“运行选股”生成候选列表。',
+    code: '代码', name: '名称', industry: '行业', price: '价格', change: '涨跌幅', score: '评分', risk: '风险', details: '详情', collapse: '收起', expand: '展开查看',
+  },
+  en: {
+    marketCn: 'China A-shares', title: 'AlphaSift screening', description: 'Generate candidate stocks with the built-in AlphaSift adapter, then enrich them with DSA data and news.',
+    enabled: 'Screening enabled', disabled: 'Screening disabled', unavailableTitle: 'AlphaSift adapter unavailable', unavailableMessage: 'The adapter is unavailable. Confirm backend dependencies are installed and restart the service.',
+    disabledTitle: 'AlphaSift disabled', disabledMessage: 'This enables ALPHASIFT_ENABLED=true. Update dependencies or rebuild the backend if the adapter is missing.', enabling: 'Enabling...', enable: 'Enable AlphaSift',
+    riskTitle: 'Experimental feature and risk notice', riskMessage: 'AlphaSift screening is experimental and intended only for research and decision support. It is not investment advice; you are responsible for trading decisions and outcomes.',
+    taskRunning: 'Screening task running', taskDefault: 'Running AlphaSift screening', taskId: 'Task ID', requestFailed: 'Request failed',
+    hotspotTitle: 'Hot themes', hotspotDescription: 'Uses AlphaSift hotspot data. Strategies such as capital_heat and balanced_alpha include theme_heat in scoring.', collapseHotspots: 'Collapse hot themes', expandHotspots: 'Expand hot themes', refreshing: 'Refreshing...', refreshHotspots: 'Refresh hot themes', updatedAt: 'Updated',
+    strategyTitle: 'Choose a strategy', strategyDescription: 'Strategies come from AlphaSift; DSA enriches candidates with quotes, fundamentals, and news context.', strategiesLoading: 'Loading available strategies...', parameters: 'Parameters', market: 'Market', strategyParameter: 'Strategy parameter', resultCount: 'Result count', screening: 'Screening...', runScreening: 'Run screening',
+    screeningRunning: 'Screening in progress', screeningComplete: 'Screening complete', waitToRun: 'Waiting to run', waitToEnable: 'Waiting to enable', currentStrategy: 'Current strategy', task: 'Task', snapshot: 'Snapshot', afterFilter: 'After filter', candidates: 'Candidates', ranked: 'Re-ranked', notRanked: 'Not re-ranked', coverage: 'Coverage', enrichment: 'DSA enrichment',
+    llmDegraded: 'LLM degraded', hint: 'AlphaSift note', results: 'Screening results', resultDescription: 'After AlphaSift returns candidates, DSA enriches the top entries with quotes, fundamentals, news, and summaries.', candidateCount: '{count} candidates', noResults: 'No results', noResultsDescription: 'Enable AlphaSift, then select “Run screening” to generate candidates.',
+    code: 'Code', name: 'Name', industry: 'Industry', price: 'Price', change: 'Change', score: 'Score', risk: 'Risk', details: 'Details', collapse: 'Collapse', expand: 'Expand',
+  },
+  ko: {
+    marketCn: '중국 A주', title: 'AlphaSift 종목 선별', description: '내장 AlphaSift 어댑터로 후보 종목을 만들고 DSA 데이터와 뉴스로 보강합니다.',
+    enabled: '종목 선별 활성화됨', disabled: '종목 선별 비활성화됨', unavailableTitle: 'AlphaSift 어댑터를 사용할 수 없습니다', unavailableMessage: '어댑터를 사용할 수 없습니다. 백엔드 의존성 설치 여부를 확인하고 서비스를 다시 시작하세요.',
+    disabledTitle: 'AlphaSift가 비활성화되어 있습니다', disabledMessage: '누르면 ALPHASIFT_ENABLED=true를 설정합니다. 어댑터가 없으면 의존성을 갱신하거나 백엔드를 다시 빌드하세요.', enabling: '활성화 중...', enable: 'AlphaSift 활성화',
+    riskTitle: '실험 기능 및 위험 안내', riskMessage: 'AlphaSift 종목 선별은 실험 기능이며 연구와 판단 보조 목적으로만 사용해야 합니다. 투자 조언이 아니며 거래 결정과 손익은 사용자의 책임입니다.',
+    taskRunning: '종목 선별 작업 실행 중', taskDefault: 'AlphaSift 종목 선별을 실행하는 중', taskId: '작업 ID', requestFailed: '요청 실패',
+    hotspotTitle: '인기 테마', hotspotDescription: 'AlphaSift의 최신 hotspot 기능을 사용합니다. capital_heat, balanced_alpha 등의 전략은 theme_heat를 점수에 반영합니다.', collapseHotspots: '인기 테마 접기', expandHotspots: '인기 테마 펼치기', refreshing: '새로 고치는 중...', refreshHotspots: '인기 테마 새로 고침', updatedAt: '업데이트 시각',
+    strategyTitle: '전략 선택', strategyDescription: '전략은 AlphaSift에서 제공하며 DSA가 후보에 시세, 기본 정보, 뉴스 문맥을 보강합니다.', strategiesLoading: '사용 가능한 전략을 불러오는 중...', parameters: '매개변수 설정', market: '시장', strategyParameter: '전략 매개변수', resultCount: '반환 개수', screening: '선별 중...', runScreening: '종목 선별 실행',
+    screeningRunning: '종목 선별 실행 중', screeningComplete: '종목 선별 완료', waitToRun: '실행 대기', waitToEnable: '활성화 대기', currentStrategy: '현재 전략', task: '작업', snapshot: '스냅샷', afterFilter: '필터 후', candidates: '후보', ranked: '재정렬됨', notRanked: '재정렬 안 됨', coverage: '적용 범위', enrichment: 'DSA 보강',
+    llmDegraded: 'LLM 성능 저하', hint: 'AlphaSift 안내', results: '종목 선별 결과', resultDescription: 'AlphaSift가 후보를 반환한 뒤 DSA가 상위 종목에 시세, 기본 정보, 뉴스, 보조 요약을 추가합니다.', candidateCount: '후보 {count}개', noResults: '결과가 없습니다', noResultsDescription: 'AlphaSift를 활성화한 뒤 “종목 선별 실행”을 눌러 후보 목록을 만드세요.',
+    code: '코드', name: '이름', industry: '업종', price: '가격', change: '등락률', score: '점수', risk: '위험', details: '상세', collapse: '접기', expand: '펼쳐 보기',
+  },
+};
 
 type PersistedScreenTask = {
   taskId: string;
@@ -435,6 +476,8 @@ const MiniSparkline: React.FC<{ score?: number | null; selected?: boolean }> = (
 
 const StockScreeningPage: React.FC = () => {
   const navigate = useNavigate();
+  const { language } = useUiLanguage();
+  const text = SCREEN_TEXT[language];
   const [restoredTask] = useState<PersistedScreenTask | null>(() => readPersistedScreenTask());
   const [enabled, setEnabled] = useState(false);
   const [available, setAvailable] = useState(false);
@@ -478,7 +521,7 @@ const StockScreeningPage: React.FC = () => {
       : ['LLM 重排未完成或未返回判断，当前候选来自 AlphaSift 本地因子评分。']
     : screenMessages;
   const isScreeningEnabled = enabled && available;
-  const statusText = isScreeningEnabled ? '选股已开启' : '选股未开启';
+  const statusText = isScreeningEnabled ? text.enabled : text.disabled;
 
   const applyScreenResult = useCallback((result: AlphaSiftScreenResponse) => {
     const nextCandidates = result.candidates || [];
@@ -832,8 +875,8 @@ const StockScreeningPage: React.FC = () => {
             <PlusCircle className="h-4 w-4" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-normal text-foreground">AlphaSift 选股</h1>
-            <p className="mt-1 text-sm text-secondary-text">开启后通过内置 AlphaSift 适配层生成候选股票，并补充 DSA 数据与新闻</p>
+            <h1 className="text-2xl font-bold tracking-normal text-foreground">{text.title}</h1>
+            <p className="mt-1 text-sm text-secondary-text">{text.description}</p>
           </div>
         </div>
 
@@ -846,11 +889,11 @@ const StockScreeningPage: React.FC = () => {
       {!enabled ? (
         <InlineAlert
           variant="info"
-          title="AlphaSift 未开启"
-          message="点击后写入 ALPHASIFT_ENABLED=true；AlphaSift 已随后端依赖安装，若适配层缺失请先更新依赖或重建后端。"
+          title={text.disabledTitle}
+          message={text.disabledMessage}
           action={
-            <Button size="sm" isLoading={enabling} loadingText="开启中..." onClick={() => void handleEnable()}>
-              开启 AlphaSift
+            <Button size="sm" isLoading={enabling} loadingText={text.enabling} onClick={() => void handleEnable()}>
+              {text.enable}
             </Button>
           }
         />
@@ -859,26 +902,26 @@ const StockScreeningPage: React.FC = () => {
       {enabled && !available ? (
         <InlineAlert
           variant="warning"
-          title="AlphaSift 适配层不可用"
-          message="适配层当前不可用，请先确认后端已安装依赖并重启服务，必要时执行 pip install -r requirements.txt 或使用设置页/服务端 /install 接口进行修复安装。"
+          title={text.unavailableTitle}
+          message={text.unavailableMessage}
         />
       ) : null}
 
       <InlineAlert
         variant="warning"
-        title="实验功能与风险提示"
-        message="AlphaSift 选股仍处于实验性质，结果仅用于研究和辅助判断，不构成投资建议；市场有风险，交易决策和损益由使用者自行承担。"
+        title={text.riskTitle}
+        message={text.riskMessage}
       />
 
       {loading ? (
         <InlineAlert
           variant="info"
-          title="选股任务运行中"
-          message={`${taskMessage || '正在执行 AlphaSift 选股'}。任务 ID：${activeTaskId ? activeTaskId.slice(0, 12) : '-'}`}
+          title={text.taskRunning}
+          message={`${taskMessage || text.taskDefault}. ${text.taskId}: ${activeTaskId ? activeTaskId.slice(0, 12) : '-'}`}
         />
       ) : null}
 
-      {error ? <InlineAlert variant="danger" title="调用失败" message={error} /> : null}
+      {error ? <InlineAlert variant="danger" title={text.requestFailed} message={error} /> : null}
 
       <section className="rounded-2xl border border-border/80 bg-card/95 p-4 shadow-soft-card">
         <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -887,9 +930,9 @@ const StockScreeningPage: React.FC = () => {
               <Flame className="h-5 w-5" />
             </span>
             <div>
-              <h2 className="text-lg font-bold tracking-normal text-foreground">热点题材</h2>
+              <h2 className="text-lg font-bold tracking-normal text-foreground">{text.hotspotTitle}</h2>
               <p className="mt-1 text-xs leading-5 text-secondary-text">
-                来自 AlphaSift 最新 hotspot 能力；capital_heat、balanced_alpha 等策略会把 theme_heat 纳入评分。
+                {text.hotspotDescription}
               </p>
             </div>
           </div>
@@ -902,7 +945,7 @@ const StockScreeningPage: React.FC = () => {
                 onClick={toggleHotspotsExpanded}
               >
                 <Bookmark className="h-4 w-4" />
-                {hotspotsExpanded ? '收起热点题材' : `展开热点题材${hotspots.length ? `（${hotspots.length}）` : ''}`}
+                {hotspotsExpanded ? text.collapseHotspots : `${text.expandHotspots}${hotspots.length ? ` (${hotspots.length})` : ''}`}
                 <ChevronDown className={`h-4 w-4 transition-transform ${hotspotsExpanded ? 'rotate-180' : ''}`} />
               </Button>
               {hotspotsExpanded ? (
@@ -910,16 +953,16 @@ const StockScreeningPage: React.FC = () => {
                 size="sm"
                 variant="secondary"
                 isLoading={loadingHotspots}
-                loadingText="刷新中..."
+                loadingText={text.refreshing}
                 disabled={!isScreeningEnabled || loadingHotspots}
                 onClick={() => void loadHotspots(true)}
               >
                 <RefreshCw className="h-4 w-4" />
-                刷新热点题材
+                {text.refreshHotspots}
               </Button>
               ) : null}
             </div>
-            <p className="text-xs text-secondary-text">更新时间：{formatHotspotUpdatedAt(hotspotsUpdatedAt)}</p>
+            <p className="text-xs text-secondary-text">{text.updatedAt}: {formatHotspotUpdatedAt(hotspotsUpdatedAt)}</p>
           </div>
         </div>
 
@@ -1121,8 +1164,8 @@ const StockScreeningPage: React.FC = () => {
       <section className="rounded-2xl border border-cyan/35 bg-card/95 p-4 shadow-soft-card">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">选择策略</h2>
-            <p className="mt-1 text-xs text-secondary-text">策略来自 AlphaSift；DSA 会对候选补充行情、基本面和新闻上下文。</p>
+            <h2 className="text-sm font-semibold text-foreground">{text.strategyTitle}</h2>
+            <p className="mt-1 text-xs text-secondary-text">{text.strategyDescription}</p>
           </div>
           <span className="rounded-full border border-cyan/30 bg-cyan/10 px-3 py-1 text-xs font-semibold text-cyan">
             {selectedStrategyTag}
@@ -1132,7 +1175,7 @@ const StockScreeningPage: React.FC = () => {
         <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
           {loadingStrategies ? (
             <div className="rounded-xl border border-dashed border-border bg-surface/70 p-4 text-sm text-secondary-text">
-              正在读取可用策略...
+              {text.strategiesLoading}
             </div>
           ) : strategies.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border bg-surface/70 p-4 text-sm text-secondary-text">
@@ -1168,12 +1211,12 @@ const StockScreeningPage: React.FC = () => {
       <section className="rounded-2xl border border-border bg-card/95 p-4 shadow-soft-card">
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
           <SlidersHorizontal className="h-4 w-4 text-cyan" />
-          参数设置
+          {text.parameters}
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr_180px_auto] lg:items-end">
           <label className="space-y-2 text-xs font-medium text-secondary-text">
-            市场
+            {text.market}
             <select
               className="h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition-colors focus:border-cyan"
               value={market}
@@ -1182,14 +1225,14 @@ const StockScreeningPage: React.FC = () => {
             >
               {MARKETS.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.label}
+                  {text.marketCn}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="space-y-2 text-xs font-medium text-secondary-text">
-            策略参数
+            {text.strategyParameter}
             <input
               className="h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition-colors focus:border-cyan"
               value={strategy}
@@ -1199,7 +1242,7 @@ const StockScreeningPage: React.FC = () => {
           </label>
 
           <label className="space-y-2 text-xs font-medium text-secondary-text">
-            返回数量
+            {text.resultCount}
             <input
               className="h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition-colors focus:border-cyan"
               type="number"
@@ -1214,12 +1257,12 @@ const StockScreeningPage: React.FC = () => {
           <Button
             className="h-11 min-w-40"
             isLoading={loading}
-            loadingText="筛选中..."
+            loadingText={text.screening}
             disabled={!isScreeningEnabled || loading}
             onClick={() => void handleSubmit()}
           >
             <Play className="h-4 w-4" />
-            运行选股
+            {text.runScreening}
           </Button>
         </div>
       </section>
@@ -1236,27 +1279,29 @@ const StockScreeningPage: React.FC = () => {
             </span>
             <div>
               <h2 className="text-sm font-semibold text-foreground">
-                {loading ? '选股运行中' : candidates.length > 0 ? '选股完成' : isScreeningEnabled ? '等待运行' : '等待开启'}
+                {loading ? text.screeningRunning : candidates.length > 0 ? text.screeningComplete : isScreeningEnabled ? text.waitToRun : text.waitToEnable}
               </h2>
               <p className="mt-1 text-xs text-secondary-text">
                 {loading
-                  ? `${taskMessage || '正在执行 AlphaSift 选股'} · ${taskProgress}%`
-                  : `当前策略：${displayedStrategy} · ${MARKETS.find((item) => item.id === market)?.label}`}
+                  ? `${taskMessage || text.taskDefault} · ${taskProgress}%`
+                  : language === 'zh'
+                    ? `当前策略：${displayedStrategy} · ${text.marketCn}`
+                    : `${text.currentStrategy}: ${displayedStrategy} · ${text.marketCn}`}
               </p>
             </div>
           </div>
           <div className="grid gap-1 text-xs text-secondary-text sm:text-right">
-            <span>任务：{activeTaskId ? activeTaskId.slice(0, 12) : '-'}</span>
+            <span>{text.task}: {activeTaskId ? activeTaskId.slice(0, 12) : '-'}</span>
             <span>Run ID：{screenMeta?.runId || '-'}</span>
             <span>
-              快照 {screenMeta?.snapshotCount ?? '-'} · 过滤后 {screenMeta?.afterFilterCount ?? '-'} · 候选 {screenMeta?.candidateCount ?? candidates.length}
+              {text.snapshot} {screenMeta?.snapshotCount ?? '-'} · {text.afterFilter} {screenMeta?.afterFilterCount ?? '-'} · {text.candidates} {screenMeta?.candidateCount ?? candidates.length}
             </span>
             <span>
-              LLM：{screenMeta?.llmRanked ? '已重排' : screenMeta ? '未重排' : '-'}
-              {screenMeta?.llmCoverage != null ? ` · 覆盖 ${formatPercent(screenMeta.llmCoverage)}` : ''}
+              LLM: {screenMeta?.llmRanked ? text.ranked : screenMeta ? text.notRanked : '-'}
+              {screenMeta?.llmCoverage != null ? ` · ${text.coverage} ${formatPercent(screenMeta.llmCoverage)}` : ''}
             </span>
             <span>
-              DSA增强：{screenMeta?.dsaEnrichment?.enrichedCount ?? '-'} / {screenMeta?.dsaEnrichment?.requestedCount ?? '-'}
+              {language === 'zh' ? 'DSA增强：' : `${text.enrichment}:`}{screenMeta?.dsaEnrichment?.enrichedCount ?? '-'} / {screenMeta?.dsaEnrichment?.requestedCount ?? '-'}
             </span>
           </div>
         </div>
@@ -1265,7 +1310,7 @@ const StockScreeningPage: React.FC = () => {
       {screenMeta && alertMessages.length > 0 ? (
         <InlineAlert
           variant={llmDegraded ? 'warning' : 'info'}
-          title={llmDegraded ? 'LLM 已降级' : 'AlphaSift 提示'}
+          title={llmDegraded ? text.llmDegraded : text.hint}
           message={<ScreenAlertMessage messages={alertMessages} />}
         />
       ) : null}
@@ -1273,21 +1318,21 @@ const StockScreeningPage: React.FC = () => {
       <section className="rounded-2xl border border-border bg-card/95 p-4 shadow-soft-card">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-base font-semibold text-foreground">选股结果</h2>
+            <h2 className="text-base font-semibold text-foreground">{text.results}</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-secondary-text">
-              AlphaSift 返回候选后，DSA 会对前几名补充行情、基本面、新闻和辅助摘要。
+              {text.resultDescription}
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-2 text-xs text-secondary-text">
             <Search className="h-4 w-4 text-cyan" />
-            {candidates.length} 条候选
+            {text.candidateCount.replace('{count}', String(candidates.length))}
           </div>
         </div>
 
         {candidates.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border bg-surface/70 px-5 py-10 text-center">
-            <p className="text-sm font-medium text-foreground">暂无结果</p>
-            <p className="mt-2 text-sm text-secondary-text">开启 AlphaSift 后点击“运行选股”生成候选列表。</p>
+            <p className="text-sm font-medium text-foreground">{text.noResults}</p>
+            <p className="mt-2 text-sm text-secondary-text">{text.noResultsDescription}</p>
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border">
@@ -1295,15 +1340,15 @@ const StockScreeningPage: React.FC = () => {
               <thead className="bg-surface text-left text-xs text-secondary-text">
                 <tr>
                   <th className="w-14 px-4 py-3 font-semibold">#</th>
-                  <th className="px-4 py-3 font-semibold">代码</th>
-                  <th className="px-4 py-3 font-semibold">名称</th>
-                  <th className="px-4 py-3 font-semibold">行业</th>
-                  <th className="px-4 py-3 font-semibold">价格</th>
-                  <th className="px-4 py-3 font-semibold">涨跌幅</th>
-                  <th className="px-4 py-3 font-semibold">评分</th>
+                  <th className="px-4 py-3 font-semibold">{text.code}</th>
+                  <th className="px-4 py-3 font-semibold">{text.name}</th>
+                  <th className="px-4 py-3 font-semibold">{text.industry}</th>
+                  <th className="px-4 py-3 font-semibold">{text.price}</th>
+                  <th className="px-4 py-3 font-semibold">{text.change}</th>
+                  <th className="px-4 py-3 font-semibold">{text.score}</th>
                   <th className="px-4 py-3 font-semibold">LLM</th>
-                  <th className="px-4 py-3 font-semibold">风险</th>
-                  <th className="px-4 py-3 font-semibold">详情</th>
+                  <th className="px-4 py-3 font-semibold">{text.risk}</th>
+                  <th className="px-4 py-3 font-semibold">{text.details}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1339,7 +1384,7 @@ const StockScreeningPage: React.FC = () => {
                             type="button"
                             onClick={() => setExpandedCode(expanded ? null : item.code)}
                           >
-                            {expanded ? '收起' : '展开查看'}
+                            {expanded ? text.collapse : text.expand}
                           </button>
                         </td>
                       </tr>

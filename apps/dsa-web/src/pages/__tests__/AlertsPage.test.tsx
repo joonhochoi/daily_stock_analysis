@@ -1,5 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { UiLanguageProvider } from '../../contexts/UiLanguageContext';
+import { UI_LANGUAGE_STORAGE_KEY } from '../../utils/uiLanguage';
 import AlertsPage from '../AlertsPage';
 
 const {
@@ -72,6 +74,7 @@ function createDeferred<T>() {
 }
 
 beforeEach(() => {
+  window.localStorage.removeItem(UI_LANGUAGE_STORAGE_KEY);
   vi.clearAllMocks();
   listRules.mockResolvedValue({ items: [rule], total: 1, page: 1, pageSize: 20 });
   listTriggers.mockResolvedValue({
@@ -108,6 +111,20 @@ beforeEach(() => {
 });
 
 describe('AlertsPage', () => {
+  it('renders notification records in Korean UI mode', async () => {
+    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'ko');
+    render(
+      <UiLanguageProvider>
+        <AlertsPage />
+      </UiLanguageProvider>,
+    );
+
+    expect(await screen.findByRole('heading', { name: '알림 센터' })).toBeInTheDocument();
+    expect(await screen.findByText('트리거 이력')).toBeInTheDocument();
+    expect(await screen.findByText('발생')).toBeInTheDocument();
+    expect(screen.getByText('알림 전송 시도 기록 없음')).toBeInTheDocument();
+  });
+
   it('loads rules, trigger history, and notification empty state', async () => {
     render(<AlertsPage />);
 

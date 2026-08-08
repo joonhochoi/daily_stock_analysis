@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LLMChannelEditor } from '../LLMChannelEditor';
+import { UiLanguageProvider } from '../../../contexts/UiLanguageContext';
+import { UI_LANGUAGE_STORAGE_KEY } from '../../../utils/uiLanguage';
 
 const {
   update,
@@ -23,9 +25,48 @@ vi.mock('../../../api/systemConfig', () => ({
 
 describe('LLMChannelEditor', () => {
   beforeEach(() => {
+    window.localStorage.removeItem(UI_LANGUAGE_STORAGE_KEY);
     update.mockReset();
     testLLMChannel.mockReset();
     discoverLLMChannelModels.mockReset();
+  });
+
+  it('renders the AI model editor heading in Korean UI mode', () => {
+    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'ko');
+
+    render(
+      <UiLanguageProvider>
+        <LLMChannelEditor items={[]} configVersion="v1" maskToken="******" onSaved={() => {}} />
+      </UiLanguageProvider>,
+    );
+
+    expect(screen.getByRole('heading', { name: 'AI 모델 설정' })).toBeInTheDocument();
+  });
+
+  it('renders the channel detail labels in Korean UI mode', async () => {
+    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'ko');
+
+    render(
+      <UiLanguageProvider>
+        <LLMChannelEditor
+          items={[
+            { key: 'LLM_CHANNELS', value: 'openai' },
+            { key: 'LLM_OPENAI_PROTOCOL', value: 'openai' },
+            { key: 'LLM_OPENAI_ENABLED', value: 'true' },
+            { key: 'LLM_OPENAI_API_KEY', value: 'secret-key' },
+            { key: 'LLM_OPENAI_MODELS', value: 'gpt-4o-mini' },
+          ]}
+          configVersion="v1"
+          maskToken="******"
+          onSaved={() => {}}
+        />
+      </UiLanguageProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /OpenAI/i }));
+
+    expect(await screen.findByLabelText('채널 이름')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '모델 가져오기' })).toBeInTheDocument();
   });
 
   it('renders API Key input with controlled visibility', async () => {

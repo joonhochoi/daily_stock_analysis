@@ -100,4 +100,15 @@ def test_invalid_litellm_log_level_falls_back_to_warning(tmp_path, monkeypatch):
     assert "invalid level debug should be filtered" not in debug_log_text
     assert "invalid level warning should remain" in debug_log_text
     assert "LITELLM_LOG_LEVEL" in debug_log_text
-    assert "已回退为 WARNING" in debug_log_text
+    assert "WARNING(으)로 되돌렸습니다" in debug_log_text
+
+
+def test_logging_initialization_uses_korean_operator_messages(tmp_path, monkeypatch):
+    monkeypatch.delenv("LITELLM_LOG_LEVEL", raising=False)
+
+    setup_logging(log_prefix="stock_analysis", log_dir=str(tmp_path), debug=False)
+
+    debug_log_text = _read_debug_log(tmp_path)
+
+    assert "로그 시스템이 초기화되었습니다" in debug_log_text
+    assert "日志系统初始化完成" not in debug_log_text

@@ -111,7 +111,7 @@ def _read_active_env_values() -> Optional[Dict[str, str]]:
     try:
         values = dotenv_values(env_path)
     except Exception as exc:  # pragma: no cover - defensive branch
-        logger.warning("读取配置文件 %s 失败，继续沿用当前环境变量: %s", env_path, exc)
+        logger.warning("설정 파일 %s을(를) 읽지 못했습니다. 현재 환경 변수를 계속 사용합니다: %s", env_path, exc)
         return None
 
     return {
@@ -474,7 +474,7 @@ def _run_market_review_with_shared_lock(
 
     lock_token = try_acquire_market_review_lock(config)
     if lock_token is None:
-        logger.warning("大盘复盘正在执行中，跳过本次大盘复盘")
+        logger.warning("시장 복기가 이미 실행 중이므로 이번 시장 복기는 건너뜁니다")
         return None
 
     try:
@@ -505,11 +505,11 @@ def _refresh_stock_index_cache_for_analysis(config: Config) -> None:
 
         result = refresh_remote_stock_index_cache(settings_from_config(config))
         if result.refreshed:
-            logger.info("[stock-index] 分析前已刷新股票索引缓存: %s", result.cache_path)
+            logger.info("[stock-index] 분석 전에 종목 인덱스 캐시를 새로 고쳤습니다: %s", result.cache_path)
         elif result.error:
-            logger.debug("[stock-index] 分析前刷新未完成，继续使用本地索引: %s", result.error)
+            logger.debug("[stock-index] 분석 전 새로 고치기를 완료하지 못해 로컬 인덱스를 계속 사용합니다: %s", result.error)
     except Exception as exc:  # noqa: BLE001 - stock index freshness must not block analysis.
-        logger.warning("[stock-index] 分析前刷新股票索引失败，继续执行分析: %s", exc)
+        logger.warning("[stock-index] 분석 전 종목 인덱스를 새로 고치지 못했지만 분석을 계속합니다: %s", exc)
 
 
 def _prime_daily_market_context(
@@ -633,7 +633,7 @@ def _save_reused_market_review_report(
             filepath,
         )
     except Exception as exc:
-        logger.warning("复用大盘上下文保存大盘复盘报告失败: %s", exc)
+        logger.warning("재사용한 시장 문맥의 시장 복기 보고서를 저장하지 못했습니다: %s", exc)
 
 
 def run_full_analysis(
@@ -672,7 +672,7 @@ def run_full_analysis(
             return True
         if set(filtered_codes) != set(effective_codes):
             skipped = set(effective_codes) - set(filtered_codes)
-            logger.info("今日休市股票已跳过: %s", skipped)
+            logger.info("오늘 휴장인 종목을 건너뛰었습니다: %s", skipped)
         stock_codes = filtered_codes
 
         # 命令行参数 --single-notify 覆盖配置（#55）
@@ -824,14 +824,14 @@ def run_full_analysis(
                         email_send_to_all=True,
                         route_type="report",
                     ):
-                        logger.info("复用本轮大盘上下文推送大盘复盘成功")
+                        logger.info("이번 실행의 시장 문맥을 재사용하여 시장 복기를 전송했습니다")
                     else:
-                        logger.warning("复用本轮大盘上下文推送大盘复盘失败")
+                        logger.warning("이번 실행의 시장 문맥을 재사용한 시장 복기 전송에 실패했습니다")
 
             review_result = None
             if not can_skip_market_review:
                 if analysis_delay > 0:
-                    logger.info(f"等待 {analysis_delay} 秒后执行大盘复盘（避免API限流）...")
+                    logger.info(f"API 요청 제한을 피하기 위해 {analysis_delay}초 후 시장 복기를 실행합니다...")
                     time.sleep(analysis_delay)
 
                 review_result = _run_market_review_with_shared_lock(
@@ -889,13 +889,13 @@ def run_full_analysis(
                 combined_content = "\n\n---\n\n".join(parts)
                 if pipeline.notifier.is_available():
                     if pipeline.notifier.send(combined_content, email_send_to_all=True, route_type="report"):
-                        logger.info("已合并推送（个股+大盘复盘）")
+                        logger.info("통합 알림을 전송했습니다(종목 + 시장 복기)")
                     else:
-                        logger.warning("合并推送失败")
+                        logger.warning("통합 알림 전송에 실패했습니다")
 
         # 输出摘要
         if results:
-            logger.info("\n===== 分析结果摘要 =====")
+            logger.info("\n===== 분석 결과 요약 =====")
             for r in sorted(results, key=lambda x: x.sentiment_score, reverse=True):
                 emoji = r.get_emoji()
                 logger.info(
@@ -903,7 +903,7 @@ def run_full_analysis(
                     f"评分 {r.sentiment_score} | {r.trend_prediction}"
                 )
 
-        logger.info("\n任务执行完成")
+        logger.info("\n작업 실행 완료")
 
         # === 新增：生成飞书云文档 ===
         try:
@@ -911,7 +911,7 @@ def run_full_analysis(
 
             feishu_doc = FeishuDocManager()
             if feishu_doc.is_configured() and (results or market_report):
-                logger.info("正在创建飞书云文档...")
+                logger.info("Feishu 클라우드 문서를 만드는 중...")
 
                 # 1. 准备标题 "01-01 13:01大盘复盘"
                 tz_cn = timezone(timedelta(hours=8))
@@ -936,7 +936,7 @@ def run_full_analysis(
                 # 3. 创建文档
                 doc_url = feishu_doc.create_daily_doc(doc_title, full_content)
                 if doc_url:
-                    logger.info(f"飞书云文档创建成功: {doc_url}")
+                    logger.info(f"Feishu 클라우드 문서를 만들었습니다: {doc_url}")
                     # 可选：将文档链接也推送到群里
                     if not args.no_notify:
                         pipeline.notifier.send(
@@ -945,14 +945,14 @@ def run_full_analysis(
                         )
 
         except Exception as e:
-            logger.error(f"飞书文档生成失败: {e}")
+            logger.error(f"Feishu 문서 생성에 실패했습니다: {e}")
 
         # === Auto backtest ===
         try:
             if getattr(config, 'backtest_enabled', False):
                 from src.services.backtest_service import BacktestService
 
-                logger.info("开始自动回测...")
+                logger.info("자동 백테스트를 시작합니다...")
                 service = BacktestService()
                 stats = service.run_backtest(
                     force=False,
@@ -961,11 +961,11 @@ def run_full_analysis(
                     limit=200,
                 )
                 logger.info(
-                    f"自动回测完成: processed={stats.get('processed')} saved={stats.get('saved')} "
+                    f"자동 백테스트 완료: processed={stats.get('processed')} saved={stats.get('saved')} "
                     f"completed={stats.get('completed')} insufficient={stats.get('insufficient')} errors={stats.get('errors')}"
                 )
         except Exception as e:
-            logger.warning(f"自动回测失败（已忽略）: {e}")
+            logger.warning(f"자동 백테스트에 실패했지만 계속 진행합니다: {e}")
 
         return True
 
@@ -1082,7 +1082,7 @@ def start_api_server(host: str, port: int, config: Config) -> None:
                 f"FastAPI server failed to start: {host}:{port}; {startup_error[0]}"
             )
         if uvicorn_server.started:
-            logger.info(f"FastAPI 服务已启动: http://{host}:{port}")
+            logger.info(f"FastAPI 서비스가 시작되었습니다: http://{host}:{port}")
             return
         if not thread.is_alive():
             break
@@ -1091,7 +1091,7 @@ def start_api_server(host: str, port: int, config: Config) -> None:
     if startup_error:
         raise RuntimeError(f"FastAPI server failed to start: {host}:{port}; {startup_error[0]}")
     if uvicorn_server.started:
-        logger.info(f"FastAPI 服务已启动: http://{host}:{port}")
+        logger.info(f"FastAPI 서비스가 시작되었습니다: http://{host}:{port}")
         return
     if not thread.is_alive():
         raise RuntimeError(f"FastAPI 服务器启动后立即退出: {host}:{port}")
@@ -1230,7 +1230,7 @@ def main() -> int:
             format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
             stream=sys.stderr,
         )
-        logger.warning("Bootstrap 日志初始化失败，已回退到 stderr: %s", exc)
+        logger.warning("초기 로그 설정에 실패하여 stderr 출력으로 대체했습니다: %s", exc)
 
     # 加载配置（在 bootstrap logging 之后执行，确保异常有日志）
     try:
@@ -1247,8 +1247,8 @@ def main() -> int:
         return 1
 
     logger.info("=" * 60)
-    logger.info("A股自选股智能分析系统 启动")
-    logger.info(f"运行时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info("주식 관심 종목 분석 시스템 시작")
+    logger.info(f"실행 시간: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info("=" * 60)
 
     # 验证配置
@@ -1274,7 +1274,7 @@ def main() -> int:
             for c in args.stocks.split(',')
             if (c or "").strip()
         ]
-        logger.info(f"使用命令行指定的股票列表: {stock_codes}")
+        logger.info(f"명령줄에서 지정한 종목 목록을 사용합니다: {stock_codes}")
 
     # === 处理 --webui / --webui-only 参数，映射到 --serve / --serve-only ===
     if args.webui:
@@ -1341,12 +1341,12 @@ def main() -> int:
             "workers": getattr(args, "workers", None),
         })
         if not prepare_webui_frontend_assets():
-            logger.warning("前端静态资源未就绪，继续启动 FastAPI 服务（Web 页面可能不可用）")
+            logger.warning("프런트엔드 정적 산출물이 준비되지 않았습니다. FastAPI 서비스는 계속 시작하지만 Web 페이지를 사용할 수 없을 수 있습니다")
         try:
             start_api_server(host=args.host, port=args.port, config=config)
             bot_clients_started = True
         except Exception as e:
-            logger.error(f"启动 FastAPI 服务失败: {e}")
+            logger.error(f"FastAPI 서비스 시작 실패: {e}")
             if args.serve_only:
                 return 1
             start_serve = False
@@ -1356,22 +1356,22 @@ def main() -> int:
 
     # === 仅 Web 服务模式：不自动执行分析 ===
     if args.serve_only:
-        logger.info("模式: 仅 Web 服务")
-        logger.info(f"Web 服务运行中: http://{args.host}:{args.port}")
-        logger.info("通过 /api/v1/analysis/analyze 接口触发分析")
-        logger.info(f"API 文档: http://{args.host}:{args.port}/docs")
-        logger.info("按 Ctrl+C 退出...")
+        logger.info("모드: Web 서비스만 실행")
+        logger.info(f"Web 서비스 실행 중: http://{args.host}:{args.port}")
+        logger.info("분석은 /api/v1/analysis/analyze API로 실행할 수 있습니다")
+        logger.info(f"API 문서: http://{args.host}:{args.port}/docs")
+        logger.info("종료하려면 Ctrl+C를 누르세요...")
         try:
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:
-            logger.info("\n用户中断，程序退出")
+            logger.info("\n사용자가 중단하여 프로그램을 종료합니다")
         return 0
 
     try:
         # 模式0: 回测
         if getattr(args, 'backtest', False):
-            logger.info("模式: 回测")
+            logger.info("모드: 백테스트")
             from src.services.backtest_service import BacktestService
 
             service = BacktestService()
@@ -1403,10 +1403,10 @@ def main() -> int:
                     getattr(config, 'market_review_region', 'cn') or 'cn', open_markets
                 )
                 if effective_region == '':
-                    logger.info("今日大盘复盘相关市场均为非交易日，跳过执行。可使用 --force-run 强制执行。")
+                    logger.info("오늘은 시장 복기 대상 시장이 모두 휴장일이므로 실행을 건너뜁니다. --force-run으로 강제 실행할 수 있습니다.")
                     return 0
 
-            logger.info("模式: 仅大盘复盘")
+            logger.info("모드: 시장 복기만 실행")
             notifier, analyzer, search_service = build_market_review_runtime(config)
 
             _run_market_review_with_shared_lock(
@@ -1424,19 +1424,19 @@ def main() -> int:
         # 模式2: 定时任务模式
         if args.schedule or config.schedule_enabled:
             if start_serve:
-                logger.info("模式: Web/API runtime scheduler")
-                logger.info(f"Web 服务运行中: http://{args.host}:{args.port}")
-                logger.info("Web/API runtime scheduler 已接管定时任务，保存设置会作用于当前进程")
-                logger.info("按 Ctrl+C 退出...")
+                logger.info("모드: Web/API 런타임 스케줄러")
+                logger.info(f"Web 서비스 실행 중: http://{args.host}:{args.port}")
+                logger.info("Web/API 런타임 스케줄러가 예약 작업을 관리합니다. 설정을 저장하면 현재 프로세스에 적용됩니다")
+                logger.info("종료하려면 Ctrl+C를 누르세요...")
                 try:
                     while True:
                         time.sleep(1)
                 except KeyboardInterrupt:
-                    logger.info("\n用户中断，程序退出")
+                    logger.info("\n사용자가 중단하여 프로그램을 종료합니다")
                 return 0
 
-            logger.info("模式: 定时任务")
-            logger.info(f"每日执行时间: {config.schedule_time}")
+            logger.info("모드: 예약 작업")
+            logger.info(f"매일 실행 시각: {config.schedule_time}")
 
             # Determine whether to run immediately:
             # Command line arg --no-run-immediately overrides config if present.
@@ -1445,7 +1445,7 @@ def main() -> int:
             if getattr(args, 'no_run_immediately', False):
                 should_run_immediately = False
 
-            logger.info(f"启动时立即执行: {should_run_immediately}")
+            logger.info(f"시작 시 즉시 실행: {should_run_immediately}")
 
             from src.scheduler import run_with_schedule
             scheduled_stock_codes = _resolve_scheduled_stock_codes(stock_codes)
@@ -1467,7 +1467,7 @@ def main() -> int:
                     stats = alert_worker.run_once()
                     triggered_count = stats.get("triggered", 0)
                     if triggered_count:
-                        logger.info("[EventMonitor] 本轮触发 %d 条提醒", triggered_count)
+                        logger.info("[EventMonitor] 이번 실행에서 알림 %d건이 발생했습니다", triggered_count)
 
                 background_tasks.append({
                     "task": event_monitor_task,
@@ -1493,14 +1493,14 @@ def main() -> int:
         if config.run_immediately:
             _run_analysis_with_runtime_scheduler_lock(config, args, stock_codes)
         else:
-            logger.info("配置为不立即运行分析 (RUN_IMMEDIATELY=false)")
+            logger.info("분석을 즉시 실행하지 않도록 설정되어 있습니다(RUN_IMMEDIATELY=false)")
 
-        logger.info("\n程序执行完成")
+        logger.info("\n프로그램 실행 완료")
 
         # 如果启用了服务且是非定时任务模式，保持程序运行
         keep_running = start_serve and not (args.schedule or config.schedule_enabled)
         if keep_running:
-            logger.info("API 服务运行中 (按 Ctrl+C 退出)...")
+            logger.info("API 서비스 실행 중(Ctrl+C로 종료)...")
             try:
                 while True:
                     time.sleep(1)
@@ -1510,7 +1510,7 @@ def main() -> int:
         return 0
 
     except KeyboardInterrupt:
-        logger.info("\n用户中断，程序退出")
+        logger.info("\n사용자가 중단하여 프로그램을 종료합니다")
         return 130
 
     except Exception as e:

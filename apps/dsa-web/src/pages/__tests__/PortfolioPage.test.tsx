@@ -341,6 +341,15 @@ describe('PortfolioPage FX refresh', () => {
     );
   }
 
+  function renderKoreanPage() {
+    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'ko');
+    render(
+      <UiLanguageProvider>
+        <PortfolioPage />
+      </UiLanguageProvider>,
+    );
+  }
+
   it('renders stale FX status with a manual refresh button', async () => {
     render(<PortfolioPage />);
 
@@ -364,6 +373,17 @@ describe('PortfolioPage FX refresh', () => {
     expect(screen.getByText('AI risk signals')).toBeInTheDocument();
     expect(screen.getByText('No defensive signals')).toBeInTheDocument();
     expect(screen.queryByText('回撤监控')).not.toBeInTheDocument();
+  });
+
+  it('renders manual-entry section headings in Korean UI mode', async () => {
+    renderKoreanPage();
+
+    await waitForInitialLoad();
+
+    expect(await screen.findByText('거래 직접 입력')).toBeInTheDocument();
+    expect(screen.getByText('현금 흐름 직접 입력')).toBeInTheDocument();
+    expect(screen.getByText('기업 활동 직접 입력')).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'huatai (화타이)' })).toBeInTheDocument();
   });
 
   it('renders portfolio decision signal risk summary', async () => {

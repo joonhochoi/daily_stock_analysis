@@ -2630,7 +2630,7 @@ class Config:
         if not self.tushare_token:
             issues.append(ConfigIssue(
                 severity="info",
-                message="未配置 Tushare Token，将使用其他数据源",
+                message="Tushare Token이 설정되지 않아 다른 데이터 소스를 사용합니다",
                 field="TUSHARE_TOKEN",
             ))
 
@@ -2990,16 +2990,16 @@ class Config:
         ):
             suggestions = []
             if has_feishu_app_credentials_complete:
-                suggestions.append("配置 FEISHU_CHAT_ID 开启 App Bot 主动推送")
-                suggestions.append("开启 FEISHU_STREAM_ENABLED 使用应用机器人事件订阅")
+                suggestions.append("FEISHU_CHAT_ID를 설정해 App Bot 능동 알림을 사용")
+                suggestions.append("FEISHU_STREAM_ENABLED를 켜고 앱 봇 이벤트 구독을 사용")
             else:
-                suggestions.append("补齐 FEISHU_APP_ID / FEISHU_APP_SECRET 后配置 FEISHU_CHAT_ID 开启 App Bot 主动推送")
-            suggestions.append("配置 FEISHU_WEBHOOK_URL 使用自定义机器人 Webhook 推送")
+                suggestions.append("FEISHU_APP_ID / FEISHU_APP_SECRET을 모두 설정한 뒤 FEISHU_CHAT_ID로 App Bot 능동 알림을 사용")
+            suggestions.append("FEISHU_WEBHOOK_URL을 설정해 사용자 지정 봇 Webhook 알림을 사용")
             issues.append(ConfigIssue(
                 severity="warning",
-                message="仅配置 FEISHU_APP_ID / FEISHU_APP_SECRET 不会开启飞书静态通知。"
-                        + " 请选择以下方式之一："
-                        + "；".join(suggestions) + "。",
+                message="FEISHU_APP_ID / FEISHU_APP_SECRET만 설정해도 페이슈 정적 알림은 활성화되지 않습니다. "
+                        + "다음 방법 중 하나를 선택하세요: "
+                        + "; ".join(suggestions) + ".",
                 field="FEISHU_CHAT_ID",
             ))
 

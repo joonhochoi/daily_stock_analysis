@@ -107,14 +107,14 @@ def _needs_frontend_build(frontend_dir: Path, force_build: bool) -> tuple[bool, 
 def _run_frontend_commands(commands: Sequence[Sequence[str]], frontend_dir: Path) -> bool:
     try:
         for command in commands:
-            logger.info("执行前端命令: %s", " ".join(command))
+            logger.info("프런트엔드 명령 실행: %s", " ".join(command))
             subprocess.run(command, cwd=frontend_dir, check=True)
-        logger.info("前端静态资源构建完成")
+        logger.info("프런트엔드 정적 산출물 빌드가 완료되었습니다")
         return True
     except subprocess.CalledProcessError as exc:
         cmd_display = " ".join(exc.cmd) if isinstance(exc.cmd, (list, tuple)) else str(exc.cmd)
         logger.error(
-            "前端命令执行失败（exit_code=%s）: %s",
+            "프런트엔드 명령 실행 실패(exit_code=%s): %s",
             getattr(exc, "returncode", "N/A"),
             cmd_display,
         )
@@ -151,17 +151,17 @@ def _warn_if_assets_missing(artifact_index: Path, frontend_dir: Path) -> None:
     assets_dir = static_dir / "assets"
     if not _has_static_assets(static_dir):
         logger.warning(
-            "检测到 %s 但 %s 目录不存在或无 CSS/JS 文件，"
-            "WebUI 将因缺少样式与脚本而显示异常（元素过大、布局错乱）",
+            "%s을(를) 찾았지만 %s 디렉터리가 없거나 CSS/JS 파일이 없습니다. "
+            "스타일과 스크립트가 없어 WebUI가 비정상적으로 표시될 수 있습니다(요소 확대·레이아웃 깨짐).",
             artifact_index,
             assets_dir,
         )
         logger.warning(
-            "请重新构建前端以修复此问题: %s",
+            "문제를 해결하려면 프런트엔드를 다시 빌드하세요: %s",
             _manual_build_command(frontend_dir),
         )
         logger.warning(
-            "Docker 用户请执行: docker-compose -f ./docker/docker-compose.yml build --no-cache"
+            "Docker 사용자는 다음을 실행하세요: docker-compose -f ./docker/docker-compose.yml build --no-cache"
         )
 
 
@@ -183,33 +183,33 @@ def prepare_webui_frontend_assets() -> bool:
 
     if not auto_build_enabled:
         if artifact_index.exists():
-            logger.info("WEBUI_AUTO_BUILD=false，检测到前端静态产物: %s", artifact_index)
+            logger.info("WEBUI_AUTO_BUILD=false이며 프런트엔드 정적 산출물을 찾았습니다: %s", artifact_index)
             _warn_if_assets_missing(artifact_index, frontend_dir)
             return True
-        logger.warning("未检测到 WebUI 前端静态产物: %s", artifact_index)
-        logger.warning("当前配置 WEBUI_AUTO_BUILD=false，不会在后端启动时自动编译前端")
-        logger.warning("请先手动构建前端: %s", _manual_build_command(frontend_dir))
-        logger.warning("如需启动时自动构建，可设置 WEBUI_AUTO_BUILD=true")
+        logger.warning("WebUI 프런트엔드 정적 산출물을 찾지 못했습니다: %s", artifact_index)
+        logger.warning("현재 WEBUI_AUTO_BUILD=false 설정으로 백엔드 시작 시 프런트엔드를 자동 빌드하지 않습니다")
+        logger.warning("먼저 프런트엔드를 수동 빌드하세요: %s", _manual_build_command(frontend_dir))
+        logger.warning("시작 시 자동 빌드하려면 WEBUI_AUTO_BUILD=true로 설정하세요")
         return False
 
     force_build = _is_truthy_env("WEBUI_FORCE_BUILD", "false")
     needs_build, artifact_index = _needs_frontend_build(frontend_dir=frontend_dir, force_build=force_build)
 
     if not needs_build:
-        logger.info("检测到可直接复用的前端静态产物，跳过运行时自动构建: %s", artifact_index)
+        logger.info("재사용 가능한 프런트엔드 정적 산출물을 찾았습니다. 런타임 자동 빌드를 건너뜁니다: %s", artifact_index)
         _warn_if_assets_missing(artifact_index, frontend_dir)
         return True
 
     package_json = frontend_dir / "package.json"
     if not package_json.exists():
-        logger.warning("未找到前端项目，无法自动构建: %s", package_json)
-        logger.warning("可先手动检查前端目录或关闭 WEBUI_AUTO_BUILD")
+        logger.warning("프런트엔드 프로젝트를 찾지 못해 자동 빌드할 수 없습니다: %s", package_json)
+        logger.warning("프런트엔드 디렉터리를 확인하거나 WEBUI_AUTO_BUILD를 끄세요")
         return False
 
     npm_path = shutil.which("npm")
     if not npm_path:
-        logger.warning("未检测到 npm，无法自动构建前端")
-        logger.warning("请先手动构建前端静态资源: %s", _manual_build_command(frontend_dir))
+        logger.warning("npm을 찾지 못해 프런트엔드를 자동 빌드할 수 없습니다")
+        logger.warning("먼저 프런트엔드 정적 산출물을 수동 빌드하세요: %s", _manual_build_command(frontend_dir))
         return False
 
     lock_file = frontend_dir / "package-lock.json"
@@ -228,7 +228,7 @@ def prepare_webui_frontend_assets() -> bool:
         commands.append([npm_path, "run", "build"])
 
     logger.info(
-        "前端构建检查结果: needs_install=%s, needs_build=%s, artifact=%s",
+        "프런트엔드 빌드 검사 결과: needs_install=%s, needs_build=%s, artifact=%s",
         needs_install,
         needs_build,
         artifact_index,

@@ -185,12 +185,12 @@ def setup_logging(
     except ValueError:
         rel_debug_log_file = debug_log_file
 
-    logging.info(f"日志系统初始化完成，日志目录: {rel_log_path}")
-    logging.info(f"常规日志: {rel_log_file}")
-    logging.info(f"调试日志: {rel_debug_log_file}")
+    logging.info(f"로그 시스템이 초기화되었습니다. 로그 디렉터리: {rel_log_path}")
+    logging.info(f"일반 로그: {rel_log_file}")
+    logging.info(f"디버그 로그: {rel_debug_log_file}")
     if invalid_litellm_level is not None:
         logging.warning(
-            "LITELLM_LOG_LEVEL=%r 无效，已回退为 %s；可选值：%s",
+            "LITELLM_LOG_LEVEL=%r 값이 올바르지 않아 %s(으)로 되돌렸습니다. 허용 값: %s",
             invalid_litellm_level,
             _DEFAULT_LITELLM_LOG_LEVEL,
             ", ".join(_ALLOWED_LOG_LEVELS),

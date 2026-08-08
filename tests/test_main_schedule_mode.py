@@ -760,6 +760,28 @@ class MainScheduleModeTestCase(unittest.TestCase):
         start_bots.assert_called_once_with(config)
         run_with_schedule.assert_not_called()
 
+    def test_serve_only_logs_korean_startup_guidance(self) -> None:
+        args = self._make_args(serve_only=True, host="127.0.0.1", port=8000)
+        config = self._make_config(webui_enabled=False)
+
+        with patch.dict(os.environ, {"GITHUB_ACTIONS": "false"}, clear=False), \
+             patch("main.parse_arguments", return_value=args), \
+             patch("main.get_config", return_value=config), \
+             patch("main.prepare_webui_frontend_assets", return_value=True), \
+             patch("main.start_api_server"), \
+             patch("main.start_bot_stream_clients"), \
+             patch("main.time.sleep", side_effect=KeyboardInterrupt), \
+             patch("main.logger.info") as info_log:
+            exit_code = main.main()
+
+        self.assertEqual(exit_code, 0)
+        info_log.assert_any_call("모드: Web 서비스만 실행")
+        info_log.assert_any_call("Web 서비스 실행 중: http://127.0.0.1:8000")
+        info_log.assert_any_call("분석은 /api/v1/analysis/analyze API로 실행할 수 있습니다")
+        info_log.assert_any_call("API 문서: http://127.0.0.1:8000/docs")
+        info_log.assert_any_call("종료하려면 Ctrl+C를 누르세요...")
+        info_log.assert_any_call("\n사용자가 중단하여 프로그램을 종료합니다")
+
     def test_reload_runtime_config_preserves_process_env_overrides(self) -> None:
         self.env_path.write_text(
             "OPENAI_API_KEY=stale-file\nSCHEDULE_TIME=09:30\n",
