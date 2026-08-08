@@ -4,6 +4,12 @@
 name: one_yang_three_yin
 display_name: 一阳夹三阴
 description: 检测一阳夹三阴K线整理形态，趋势延续入场信号。
+display_name_i18n:
+  ko: 양봉 1개·음봉 3개 패턴
+  en: One Yang, Three Yin
+description_i18n:
+  ko: 양봉 한 개와 음봉 세 개의 조정 패턴을 점검해 추세 지속 진입 신호를 찾습니다.
+  en: Detects the one-yang-three-yin consolidation pattern as a trend-continuation entry signal.
 category: pattern
 core_rules: [2, 4]
 required_tools:

@@ -3,6 +3,12 @@
 name: expectation_repricing
 display_name: 预期重估
 description: 分析业绩预期、政策预期和估值预期的变化，寻找预期差修复或预期过热后的回落风险。
+display_name_i18n:
+  ko: 기대 재평가
+  en: Expectation Repricing
+description_i18n:
+  ko: 실적·정책·밸류에이션 기대 변화에서 기대 차이 회복 또는 과열 뒤 하락 위험을 분석합니다.
+  en: Analyzes earnings, policy, and valuation expectation shifts for repricing opportunities and overheating risk.
 category: framework
 core_rules: [3, 5, 6]
 required_tools:

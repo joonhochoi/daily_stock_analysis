@@ -2756,8 +2756,8 @@ class Config:
                 issues.append(ConfigIssue(
                     severity="error",
                     message=(
-                        "已配置的主模型未出现在当前渠道或高级模型路由配置中。"
-                        f" 当前可用模型：{', '.join(available_router_models[:6])}"
+                        "설정한 기본 모델이 현재 채널 또는 고급 모델 라우팅 설정에 없습니다."
+                        f" 현재 사용 가능한 모델: {', '.join(available_router_models[:6])}"
                     ),
                     field="LITELLM_MODEL",
                 ))
@@ -2771,8 +2771,8 @@ class Config:
                 issues.append(ConfigIssue(
                     severity="error",
                     message=(
-                        "已配置的 Agent 主模型未出现在当前渠道或高级模型路由配置中。"
-                        f" 当前可用模型：{', '.join(available_router_models[:6])}"
+                        "설정한 Agent 기본 모델이 현재 채널 또는 고급 모델 라우팅 설정에 없습니다."
+                        f" 현재 사용 가능한 모델: {', '.join(available_router_models[:6])}"
                     ),
                     field="AGENT_LITELLM_MODEL",
                 ))
@@ -2786,7 +2786,7 @@ class Config:
                 issues.append(ConfigIssue(
                     severity="warning",
                     message=(
-                        "备选模型中包含未在当前渠道或高级模型路由配置中声明的模型："
+                        "대체 모델에 현재 채널 또는 고급 모델 라우팅 설정에 선언되지 않은 모델이 있습니다: "
                         f"{', '.join(invalid_fallbacks[:3])}"
                     ),
                     field="LITELLM_FALLBACK_MODELS",
@@ -2800,8 +2800,8 @@ class Config:
                 issues.append(ConfigIssue(
                     severity="warning",
                     message=(
-                        "VISION_MODEL 未出现在当前渠道声明中。"
-                        f" 当前可用模型：{', '.join(available_router_models[:6])}"
+                        "VISION_MODEL이 현재 채널 설정에 없습니다."
+                        f" 현재 사용 가능한 모델: {', '.join(available_router_models[:6])}"
                     ),
                     field="VISION_MODEL",
                 ))
@@ -2813,8 +2813,8 @@ class Config:
             issues.append(ConfigIssue(
                 severity="error",
                 message=(
-                    "已配置 Agent 主模型，但未找到可用的运行时来源"
-                    "（启用渠道或匹配的 API Key）。"
+                    "Agent 기본 모델이 설정되어 있지만 사용 가능한 런타임 소스를 찾지 못했습니다"
+                    "(활성 채널 또는 일치하는 API 키)."
                 ),
                 field="AGENT_LITELLM_MODEL",
             ))

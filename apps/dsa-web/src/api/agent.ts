@@ -1,5 +1,6 @@
 import apiClient from './index';
 import { API_BASE_URL } from '../utils/constants';
+import type { UiLanguage } from '../i18n/uiText';
 import { createApiError, isApiRequestError, parseApiError } from './error';
 
 export interface ChatStreamOptions {
@@ -56,8 +57,8 @@ export const agentApi = {
     });
     return response.data;
   },
-  async getSkills(): Promise<SkillsResponse> {
-    const response = await apiClient.get<SkillsResponse>('/api/v1/agent/skills');
+  async getSkills(language: UiLanguage = 'zh'): Promise<SkillsResponse> {
+    const response = await apiClient.get<SkillsResponse>('/api/v1/agent/skills', { params: { language } });
     return response.data;
   },
   async getChatSessions(limit = 50): Promise<ChatSessionItem[]> {

@@ -4,6 +4,12 @@
 name: shrink_pullback
 display_name: 缩量回踩
 description: 检测缩量回踩均线支撑信号，趋势延续的理想入场点。
+display_name_i18n:
+  ko: 거래량 축소 눌림목
+  en: Low-volume Pullback
+description_i18n:
+  ko: 거래량이 줄며 이동평균선 지지까지 되돌림이 나오는 추세 지속형 진입 구간을 점검합니다.
+  en: Detects low-volume pullbacks to moving-average support as trend-continuation entries.
 category: trend
 core_rules: [1, 2, 4]
 required_tools:

@@ -199,7 +199,7 @@ class AnalysisTaskQueue:
         self._max_flow_events_per_task = 200
         
         self._initialized = True
-        logger.info(f"[TaskQueue] 初始化完成，最大并发: {max_workers}")
+        logger.info(f"[TaskQueue] 초기화 완료, 최대 동시 실행 수: {max_workers}")
     
     @property
     def executor(self) -> ThreadPoolExecutor:

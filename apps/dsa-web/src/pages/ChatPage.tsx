@@ -376,7 +376,7 @@ const ChatPage: React.FC = () => {
   }, [loadInitialSession]);
 
   useEffect(() => {
-    agentApi.getSkills()
+    agentApi.getSkills(language)
       .then((res) => {
         setSkills(res.skills);
         const defaultId =
@@ -388,7 +388,7 @@ const ChatPage: React.FC = () => {
       .catch((error) => {
         console.error('Failed to load chat skills:', error);
       });
-  }, []);
+  }, [language]);
 
   useEffect(() => {
     let active = true;

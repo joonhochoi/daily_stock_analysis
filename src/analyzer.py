@@ -88,6 +88,37 @@ from src.market_phase_prompt import format_market_phase_prompt_section
 
 logger = logging.getLogger(__name__)
 
+_HAN_CHARACTER_RE = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]")
+_HANGUL_CHARACTER_RE = re.compile(r"[\uac00-\ud7a3]")
+
+
+def _iter_analysis_text_values(value: Any):
+    """Yield user-facing string values from a parsed analysis response."""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for nested_value in value.values():
+            yield from _iter_analysis_text_values(nested_value)
+    elif isinstance(value, (list, tuple)):
+        for nested_value in value:
+            yield from _iter_analysis_text_values(nested_value)
+
+
+def _has_report_language_mismatch(data: Dict[str, Any], report_language: str) -> bool:
+    """Detect a Korean report whose user-visible values are predominantly Chinese.
+
+    This uses a mixed-language guard. It catches a whole Chinese report
+    without rejecting a Korean report that includes a short original news title,
+    source name, ticker, or unavoidable Hanja.
+    """
+    if normalize_report_language(report_language) != "ko":
+        return False
+
+    user_text = " ".join(_iter_analysis_text_values(data))
+    han_count = len(_HAN_CHARACTER_RE.findall(user_text))
+    hangul_count = len(_HANGUL_CHARACTER_RE.findall(user_text))
+    return han_count >= 12 and han_count > hangul_count * 2
+
 
 def _localized_analysis_fallbacks(language: str) -> Dict[str, str]:
     """Return fixed user-visible analyzer fallbacks for a normalized language."""
@@ -2268,6 +2299,8 @@ class GeminiAnalyzer:
 - 사용자가 읽는 모든 JSON 값은 자연스러운 한국어로 작성하세요.
 - 확실한 경우 널리 쓰이는 한국어 종목명을 사용하고, 불확실하면 상장 종목명을 그대로 유지하세요.
 - `stock_name`, `trend_prediction`, `operation_advice`, `confidence_level`, 대시보드 문구, 확인 목록과 모든 요약문이 포함됩니다.
+- 중국어 한자는 원문 뉴스 제목·법적 고유명처럼 번역할 수 없는 예외 외에는 출력하지 마세요. 중국어로 생성한 뒤 한국어로 설명하는 방식도 허용되지 않습니다.
+- 입력 데이터와 활성화된 전략 지시문이 중국어여도 출력 언어 계약은 한국어이며, 이 계약을 우선합니다.
 """
         return base_prompt + """
 
@@ -3220,6 +3253,7 @@ class GeminiAnalyzer:
             # 使用 litellm 调用（支持完整性校验重试）
             current_prompt = prompt
             retry_count = 0
+            language_retry_count = 0
             max_retries = config.report_integrity_retry if config.report_integrity_enabled else 0
 
             while True:
@@ -3231,7 +3265,10 @@ class GeminiAnalyzer:
                         system_prompt=system_prompt,
                         stream=True,
                         stream_progress_callback=stream_progress_callback,
-                        response_validator=self._validate_json_response,
+                        response_validator=lambda text: self._validate_json_response(
+                            text,
+                            report_language=report_language,
+                        ),
                         audit_context=legacy_audit_context,
                     )
                 except _AllModelsFailedError as exc:
@@ -3273,6 +3310,44 @@ class GeminiAnalyzer:
                 result.model_used = model_used
                 result.report_language = report_language
                 normalize_chip_structure_availability(result, context.get("chip"))
+
+                # JSON validity alone is insufficient: some providers return a
+                # structurally valid Chinese report even when REPORT_LANGUAGE=ko.
+                # Regenerate once with the previous JSON as the semantic baseline.
+                language_mismatch = self._response_has_report_language_mismatch(
+                    response_text,
+                    report_language,
+                )
+                if language_mismatch and language_retry_count < 1:
+                    language_retry_count += 1
+                    current_prompt = self._build_language_retry_prompt(
+                        prompt,
+                        response_text,
+                        report_language=report_language,
+                    )
+                    logger.warning(
+                        "[LLM 언어] %s(%s) 응답이 한국어 계약을 위반해 전체 JSON을 재생성합니다 (%d/1)",
+                        name,
+                        code,
+                        language_retry_count,
+                    )
+                    _emit_progress(95, f"{name}：한국어 보고서 형식을 다시 생성하는 중")
+                    continue
+                if language_mismatch:
+                    logger.error(
+                        "[LLM 언어] %s(%s) 응답이 재시도 뒤에도 한국어 계약을 위반했습니다",
+                        name,
+                        code,
+                    )
+                    result = self._build_report_language_failure_result(
+                        code,
+                        name,
+                        report_language,
+                        model_used,
+                    )
+                    result.search_performed = bool(news_context)
+                    result.market_snapshot = self._build_market_snapshot(context)
+                    break
 
                 # 内容完整性校验（可选）
                 if not config.report_integrity_enabled:
@@ -3786,6 +3861,8 @@ class GeminiAnalyzer:
 - `stock_name`, `trend_prediction`, `operation_advice`, `confidence_level`, 대시보드 문구, 확인 목록과 모든 요약 필드가 포함됩니다.
 - 확실한 경우 널리 쓰이는 한국어 종목명을 사용하고, 불확실하면 상장 종목명을 그대로 유지하세요.
 - 데이터가 없으면 중국어나 영어 대신 한국어로 "{no_data_text}, 판단할 수 없습니다"라고 설명하세요.
+- 중국어 한자는 원문 뉴스 제목·법적 고유명처럼 번역할 수 없는 예외 외에는 쓰지 마세요. 중국어 JSON을 작성한 후 한국어 설명을 덧붙이는 것도 금지합니다.
+- 위 입력의 중국어 데이터·전략 지시문보다 이 한국어 출력 계약이 우선합니다.
 """
         else:
             prompt += f"""
@@ -4003,6 +4080,63 @@ class GeminiAnalyzer:
             previous_output,
             complement,
         ])
+
+    def _build_language_retry_prompt(
+        self,
+        base_prompt: str,
+        previous_response: str,
+        report_language: str = "zh",
+    ) -> str:
+        """Build one bounded retry that repairs a report-language contract breach."""
+        if normalize_report_language(report_language) != "ko":
+            return base_prompt
+        return "\n\n".join([
+            base_prompt,
+            "### 언어 계약 위반 수정 (반드시 수행)",
+            "아래 이전 JSON은 구조는 유효하지만 사용자용 값이 중국어로 작성되어 한국어 보고서 계약을 위반했습니다.",
+            "모든 JSON 키, 숫자, 코드, 날짜, decision_type을 유지하고, 사람이 읽는 모든 값과 배열 항목을 자연스러운 한국어로 번역해 전체 JSON만 다시 출력하세요.",
+            "중국어 한자는 원문 뉴스 제목·법적 고유명처럼 번역할 수 없는 경우 외에는 남기지 마세요. 새로운 투자 판단이나 수치를 추가하지 마세요.",
+            "### 이전 JSON",
+            previous_response.strip(),
+        ])
+
+    def _response_has_report_language_mismatch(
+        self,
+        response_text: str,
+        report_language: str,
+    ) -> bool:
+        """Best-effort post-parse language check used by the bounded retry path."""
+        try:
+            _json_str, data = self._extract_analysis_json_object(response_text)
+        except Exception:
+            return False
+        return _has_report_language_mismatch(data, report_language)
+
+    def _build_report_language_failure_result(
+        self,
+        code: str,
+        name: str,
+        report_language: str,
+        model_used: Optional[str],
+    ) -> AnalysisResult:
+        """Do not persist a silently wrong-language report after its one repair retry."""
+        fallbacks = _localized_analysis_fallbacks(report_language)
+        return AnalysisResult(
+            code=code,
+            name=name,
+            sentiment_score=50,
+            trend_prediction=fallbacks["sideways"],
+            operation_advice=fallbacks["hold"],
+            confidence_level=fallbacks["low"],
+            analysis_summary="모델이 한국어 보고서 형식을 지키지 않아 분석 결과를 저장하지 않았습니다. 잠시 후 다시 시도하거나 다른 모델을 선택하세요.",
+            risk_warning="한국어 출력 검증에 실패했습니다. 투자 판단에 사용하기 전에 새 분석 결과를 확인하세요.",
+            success=False,
+            error_message="report_language_mismatch",
+            model_used=model_used,
+            report_language=normalize_report_language(report_language),
+            # Do not re-expose the rejected Chinese report through history APIs.
+            raw_response="",
+        )
 
     def _apply_placeholder_fill(self, result: AnalysisResult, missing_fields: List[str]) -> None:
         """Delegate to module-level apply_placeholder_fill."""
@@ -4250,7 +4384,7 @@ class GeminiAnalyzer:
         
         return json_str
 
-    def _validate_json_response(self, text: str) -> None:
+    def _validate_json_response(self, text: str, *, report_language: str = "zh") -> None:
         """Validate that *text* contains one parser-compatible JSON object.
 
         Used as the ``response_validator`` argument to :meth:`_call_litellm` so
@@ -4289,6 +4423,12 @@ class GeminiAnalyzer:
             ) from exc
 
         self._validate_analysis_minimal_contract(data)
+        if _has_report_language_mismatch(data, report_language):
+            raise self._generation_validation_error(
+                GenerationErrorCode.SCHEMA_VALIDATION_FAILED,
+                reason="report_language_mismatch",
+                message="Korean report contains predominantly Chinese user-visible text",
+            )
     
     def _parse_text_response(
         self, 

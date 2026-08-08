@@ -4,6 +4,12 @@
 name: bottom_volume
 display_name: 底部放量
 description: 检测长期下跌后底部放量信号，潜在趋势反转信号。
+display_name_i18n:
+  ko: 바닥권 거래량 급증
+  en: Bottom Volume Surge
+description_i18n:
+  ko: 장기 하락 뒤 바닥권에서 거래량이 급증하는 잠재적 추세 반전 신호를 점검합니다.
+  en: Detects a volume surge after a prolonged decline that may signal a trend reversal.
 category: reversal
 core_rules: [2, 5]
 required_tools:

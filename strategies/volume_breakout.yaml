@@ -4,6 +4,12 @@
 name: volume_breakout
 display_name: 放量突破
 description: 检测放量突破阻力位信号。适用于股价接近已知阻力位时。
+display_name_i18n:
+  ko: 거래량 급증 돌파
+  en: Volume Breakout
+description_i18n:
+  ko: 알려진 저항선 부근에서 거래량을 동반한 돌파 신호를 점검합니다.
+  en: Detects volume-confirmed breakouts when price approaches known resistance.
 category: trend
 core_rules: [1, 2, 3]
 required_tools:

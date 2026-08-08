@@ -4,6 +4,12 @@
 name: chan_theory
 display_name: 缠论
 description: 基于缠论笔、线段、中枢结构，判断趋势级别、买卖点与背驰信号。
+display_name_i18n:
+  ko: 찬론
+  en: Chan Theory
+description_i18n:
+  ko: 찬론의 획, 선분, 중추 구조를 바탕으로 추세 단계와 매매 지점, 다이버전스를 판단합니다.
+  en: Uses Chan Theory strokes, segments, and centers to assess trends, trade points, and divergence.
 category: framework
 core_rules: [1, 2, 3, 4]
 required_tools:

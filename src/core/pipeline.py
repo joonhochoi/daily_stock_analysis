@@ -241,21 +241,21 @@ class StockAnalysisPipeline:
             logger.warning("搜索服务初始化失败，将以无搜索模式运行: %s", exc, exc_info=True)
             self.search_service = None
         
-        logger.info(f"调度器初始化完成，最大并发数: {self.max_workers}")
-        logger.info("已启用技术分析引擎（均线/趋势/量价指标）")
+        logger.info(f"스케줄러 초기화 완료, 최대 동시 실행 수: {self.max_workers}")
+        logger.info("기술적 분석 엔진 활성화(이동평균선/추세/거래량·가격 지표)")
         # 打印实时行情/筹码配置状态
         if self.config.enable_realtime_quote:
-            logger.info(f"实时行情已启用 (优先级: {self.config.realtime_source_priority})")
+            logger.info(f"실시간 시세 활성화(우선순위: {self.config.realtime_source_priority})")
         else:
-            logger.info("实时行情已禁用，将使用历史收盘价")
+            logger.info("실시간 시세 비활성화, 과거 종가를 사용합니다")
         if self.config.enable_chip_distribution:
-            logger.info("筹码分布分析已启用")
+            logger.info("매물대 분포 분석 활성화")
         else:
-            logger.info("筹码分布分析已禁用")
+            logger.info("매물대 분포 분석 비활성화")
         if self.search_service is None:
-            logger.warning("搜索服务未启用（初始化失败或依赖缺失）")
+            logger.warning("검색 서비스가 활성화되지 않았습니다(초기화 실패 또는 의존성 누락)")
         elif self.search_service.is_available:
-            logger.info("搜索服务已启用")
+            logger.info("검색 서비스 활성화")
         else:
             logger.warning("搜索服务未启用（未配置搜索能力）")
 

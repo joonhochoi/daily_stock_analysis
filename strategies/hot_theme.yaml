@@ -3,6 +3,12 @@
 name: hot_theme
 display_name: 热点题材
 description: 跟踪政策、产业和市场热点，判断题材强度、板块扩散和个股相对强弱。
+display_name_i18n:
+  ko: 인기 테마
+  en: Hot Theme
+description_i18n:
+  ko: 정책·산업·시장 테마를 추적해 테마 강도, 섹터 확산, 종목별 상대 강도를 판단합니다.
+  en: Tracks policy, industry, and market themes to assess momentum, sector diffusion, and relative strength.
 category: framework
 core_rules: [2, 3, 5, 7]
 required_tools:

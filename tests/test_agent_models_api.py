@@ -285,6 +285,32 @@ class AgentSkillsEndpointTestCase(unittest.TestCase):
         self.assertEqual(payload["default_skill_id"], "bull_trend")
         self.assertEqual([item["id"] for item in payload["skills"]], ["bull_trend", "chan_theory"])
 
+    def test_skills_endpoint_localizes_builtin_skill_metadata(self) -> None:
+        config = _build_config()
+        skill_manager = SimpleNamespace(
+            list_skills=lambda: [
+                SimpleNamespace(
+                    name="bull_trend",
+                    display_name="默认多头趋势",
+                    description="默认个股分析优先策略",
+                    display_name_i18n={"ko": "기본 상승 추세", "en": "Default Bull Trend"},
+                    description_i18n={"ko": "기본 개별 종목 분석을 위한 우선 전략입니다.", "en": "Default strategy for individual-stock analysis."},
+                    user_invocable=True,
+                    default_priority=10,
+                    default_active=True,
+                ),
+            ]
+        )
+
+        with patch("api.v1.endpoints.agent.get_config", return_value=config), patch(
+            "src.agent.factory.get_skill_manager",
+            return_value=skill_manager,
+        ):
+            payload = asyncio.run(agent.get_skills(language="ko")).model_dump()
+
+        self.assertEqual(payload["skills"][0]["name"], "기본 상승 추세")
+        self.assertEqual(payload["skills"][0]["description"], "기본 개별 종목 분석을 위한 우선 전략입니다.")
+
     def test_legacy_strategies_endpoint_preserves_legacy_field_names(self) -> None:
         config = _build_config()
         skill_manager = SimpleNamespace(

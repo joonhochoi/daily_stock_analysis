@@ -3,6 +3,12 @@
 name: event_driven
 display_name: 事件驱动
 description: 围绕业绩、政策、并购、订单、产品发布等事件，评估催化强度、兑现概率和风险边界。
+display_name_i18n:
+  ko: 이벤트 기반
+  en: Event-driven
+description_i18n:
+  ko: 실적, 정책, 인수합병, 수주, 제품 출시 등의 촉매 강도와 실현 가능성, 위험 한계를 평가합니다.
+  en: Evaluates catalyst strength, realization probability, and risk for earnings, policy, M&A, orders, and launches.
 category: framework
 core_rules: [3, 5]
 required_tools:

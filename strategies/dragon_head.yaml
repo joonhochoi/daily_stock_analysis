@@ -4,6 +4,12 @@
 name: dragon_head
 display_name: 龙头策略
 description: 板块轮动中识别龙头股。适用于板块启动或行业催化剂出现时。
+display_name_i18n:
+  ko: 주도주 전략
+  en: Leading Stock Strategy
+description_i18n:
+  ko: 섹터 순환에서 주도주를 식별하며, 섹터 출발이나 산업 촉매가 있을 때 사용합니다.
+  en: Identifies sector leaders during rotation, suited to sector launches and industry catalysts.
 category: trend
 core_rules: [2, 7]
 required_tools:

@@ -1794,6 +1794,87 @@ class TestAnalyzerGenerateText:
         assert result.success is True
         assert result.error_message is None
 
+    def test_validate_json_response_rejects_chinese_dominant_korean_report(self):
+        """Korean reports must not silently accept a Chinese JSON response."""
+        from src.llm.generation_backend import GenerationError
+
+        analyzer = self._make_analyzer()
+        chinese_response = json.dumps(
+            {
+                "sentiment_score": 72,
+                "trend_prediction": "弱势多头整理",
+                "operation_advice": "建议观望，等待均线确认",
+                "analysis_summary": "当前成交量不足，短期仍需观察市场情绪变化。",
+            }
+        )
+
+        with pytest.raises(GenerationError) as exc_info:
+            analyzer._validate_json_response(chinese_response, report_language="ko")
+
+        assert exc_info.value.details["reason"] == "report_language_mismatch"
+
+    def test_validate_json_response_accepts_korean_report(self):
+        analyzer = self._make_analyzer()
+        korean_response = json.dumps(
+            {
+                "sentiment_score": 72,
+                "trend_prediction": "약세 속 반등 시도",
+                "operation_advice": "관망하고 이동평균선 확인을 기다리세요",
+                "analysis_summary": "거래량이 부족해 단기적으로 시장 심리 변화를 더 확인해야 합니다.",
+            }
+        )
+
+        analyzer._validate_json_response(korean_response, report_language="ko")
+
+    def test_analyze_regenerates_a_chinese_response_for_korean_report(self):
+        analyzer = self._make_analyzer()
+        analyzer._config_override = SimpleNamespace(
+            gemini_request_delay=0,
+            report_language="ko",
+            litellm_model="openai/test-model",
+            llm_temperature=0.2,
+            report_integrity_enabled=False,
+            report_integrity_retry=0,
+        )
+        chinese_response = json.dumps(
+            {
+                "sentiment_score": 70,
+                "trend_prediction": "震荡偏弱",
+                "operation_advice": "建议观望",
+                "analysis_summary": "短期成交量不足，等待趋势确认。",
+            }
+        )
+        korean_response = json.dumps(
+            {
+                "sentiment_score": 70,
+                "trend_prediction": "약세 횡보",
+                "operation_advice": "관망",
+                "analysis_summary": "단기 거래량이 부족하므로 추세 확인을 기다려야 합니다.",
+            }
+        )
+
+        with patch.object(analyzer, "is_available", return_value=True), \
+             patch.object(analyzer, "get_generation_backend_config_error", return_value=None), \
+             patch.object(analyzer, "_resolve_generation_backend_config", return_value=("litellm", "litellm")), \
+             patch.object(analyzer, "_get_analysis_system_prompt", return_value="system"), \
+             patch.object(analyzer, "_get_skill_prompt_sections", return_value=("", "", False)), \
+             patch.object(analyzer, "_format_prompt", return_value="base prompt"), \
+             patch.object(analyzer, "_build_market_snapshot", return_value={}), \
+             patch.object(
+                 analyzer,
+                 "_call_litellm",
+                 side_effect=[
+                     (chinese_response, "openai/test-model", {"usage_available": False}),
+                     (korean_response, "openai/test-model", {"usage_available": False}),
+                 ],
+             ) as mock_call:
+            result = analyzer.analyze({"code": "005930.KS", "stock_name": "삼성전자"})
+
+        assert mock_call.call_count == 2
+        assert "언어 계약 위반 수정" in mock_call.call_args_list[1].args[0]
+        assert result.success is True
+        assert result.analysis_summary == "단기 거래량이 부족하므로 추세 확인을 기다려야 합니다."
+
     def test_json_parse_failure_triggers_fallback_model(self):
         """When the primary model returns non-JSON, _call_litellm must try the fallback model."""
         analyzer = self._make_analyzer()

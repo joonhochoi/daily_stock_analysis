@@ -4,6 +4,12 @@
 name: ma_golden_cross
 display_name: 均线金叉
 description: 检测均线金叉配合量能确认信号，经典的趋势反转/延续信号。
+display_name_i18n:
+  ko: 이동평균선 골든크로스
+  en: Moving Average Golden Cross
+description_i18n:
+  ko: 거래량 확인을 동반한 이동평균선 골든크로스를 점검하는 추세 반전·지속 신호입니다.
+  en: Detects moving-average golden crosses with volume confirmation for trend reversal or continuation.
 category: trend
 core_rules: [1, 2, 3]
 required_tools:

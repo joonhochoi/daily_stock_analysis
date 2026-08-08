@@ -17,6 +17,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
+from src.report_language import normalize_report_language
+
 logger = logging.getLogger(__name__)
 
 # Built-in skill YAML directory (project_root/strategies/ kept for compatibility)
@@ -77,6 +79,16 @@ class Skill:
     execution_context: str = "inline"
     subagent_type: str = ""
     preferred_model: str = ""
+    display_name_i18n: Dict[str, str] = field(default_factory=dict)
+    description_i18n: Dict[str, str] = field(default_factory=dict)
+
+    def get_display_name(self, language: str = "zh") -> str:
+        """Return localized selector metadata without changing the stable skill id."""
+        return self.display_name_i18n.get(normalize_report_language(language), self.display_name)
+
+    def get_description(self, language: str = "zh") -> str:
+        """Return localized selector metadata with the original text as fallback."""
+        return self.description_i18n.get(normalize_report_language(language), self.description)
 
 
 _FRONTMATTER_RE = re.compile(r"^---\s*\r?\n(.*?)\r?\n---\s*\r?\n?(.*)$", re.DOTALL)
@@ -199,6 +211,16 @@ def load_skill_from_yaml(filepath: Union[str, Path]) -> Skill:
         execution_context=str(data.get("context", "inline")).strip() or "inline",
         subagent_type=str(data.get("agent", "")).strip(),
         preferred_model=str(data.get("model", "")).strip(),
+        display_name_i18n={
+            str(language).strip().lower(): str(text).strip()
+            for language, text in (data.get("display_name_i18n") or {}).items()
+            if str(language).strip() and str(text).strip()
+        } if isinstance(data.get("display_name_i18n"), dict) else {},
+        description_i18n={
+            str(language).strip().lower(): str(text).strip()
+            for language, text in (data.get("description_i18n") or {}).items()
+            if str(language).strip() and str(text).strip()
+        } if isinstance(data.get("description_i18n"), dict) else {},
     )
 
 

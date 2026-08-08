@@ -3,6 +3,12 @@
 name: bull_trend
 display_name: 默认多头趋势
 description: 默认个股分析优先策略，识别多头排列、趋势延续与回踩低吸机会。
+display_name_i18n:
+  ko: 기본 상승 추세
+  en: Default Bull Trend
+description_i18n:
+  ko: 기본 개별 종목 분석에서 상승 정렬, 추세 지속, 눌림목 진입 기회를 우선 점검합니다.
+  en: Default individual-stock strategy for bullish alignment, continuation, and pullback entries.
 category: trend
 core_rules: [1, 2, 3]
 required_tools:

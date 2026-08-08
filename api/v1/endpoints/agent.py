@@ -14,6 +14,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 from src.config import get_config
+from src.report_language import normalize_report_language
 from src.services.agent_model_service import list_agent_model_deployments
 
 # Tool name -> Chinese display name mapping
@@ -101,7 +102,7 @@ async def get_agent_models():
     )
 
 
-def _build_skills_response(config) -> SkillsResponse:
+def _build_skills_response(config, language: str = "zh") -> SkillsResponse:
     from src.agent.factory import get_skill_manager
     from src.agent.skills.defaults import get_primary_default_skill_id
 
@@ -118,8 +119,24 @@ def _build_skills_response(config) -> SkillsResponse:
             skill.name,
         ),
     )
+    language = normalize_report_language(language)
+    def _localized_skill_text(skill: Any, field: str) -> str:
+        getter = getattr(skill, f"get_{field}", None)
+        if callable(getter):
+            return str(getter(language))
+        translations = getattr(skill, f"{field}_i18n", {})
+        if isinstance(translations, dict):
+            translated = translations.get(language)
+            if translated:
+                return str(translated)
+        return str(getattr(skill, field, ""))
+
     skills = [
-        SkillInfo(id=skill.name, name=skill.display_name, description=skill.description)
+        SkillInfo(
+            id=skill.name,
+            name=_localized_skill_text(skill, "display_name"),
+            description=_localized_skill_text(skill, "description"),
+        )
         for skill in available_skills
     ]
     return SkillsResponse(
@@ -129,17 +146,17 @@ def _build_skills_response(config) -> SkillsResponse:
 
 
 @router.get("/skills", response_model=SkillsResponse)
-async def get_skills():
+async def get_skills(language: str = "zh"):
     """
     Get available agent strategy skills.
     """
-    return _build_skills_response(get_config())
+    return _build_skills_response(get_config(), language=language)
 
 
 @router.get("/strategies", response_model=StrategiesResponse, include_in_schema=False)
-async def get_strategies():
+async def get_strategies(language: str = "zh"):
     """Compatibility alias for legacy clients."""
-    payload = _build_skills_response(get_config())
+    payload = _build_skills_response(get_config(), language=language)
     return StrategiesResponse(
         strategies=payload.skills,
         default_strategy_id=payload.default_skill_id,

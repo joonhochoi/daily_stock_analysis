@@ -190,7 +190,7 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     let active = true;
-    agentApi.getSkills()
+    agentApi.getSkills(uiLanguage)
       .then((response) => {
         if (active) {
           setAnalysisSkills(response.skills);
@@ -205,7 +205,7 @@ const HomePage: React.FC = () => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [uiLanguage]);
 
   useEffect(() => {
     if (!strategyMenuOpen) {

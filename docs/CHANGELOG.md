@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - [新功能] WebUI 与报告输出语言新增韩语 `ko`，覆盖浏览器语言识别、三语切换、API/配置校验、Prompt、报告固定文案、市场复盘、通知与关键降级路径。
 - [改进] 한국어 Web UI에서 AI 모델 채널, 알림 센터, 포트폴리오 입력·원장, 종목 질문의 정적 안내와 주요 상태 문구를 현지화하고 서버 시작 로그의 한국어 출력을 보강했다.
+- [改进] 한국어 보고서가 중국어 LLM 응답을 그대로 저장하지 않도록 언어 계약 검사와 1회 전체 JSON 재생성을 추가했으며, 전략 선택기의 이름·설명도 `zh`/`en`/`ko`로 제공한다.
 - [改进] 通知报告的分析结果摘要不再展开 AI 决策信号明细，完整信号保留在个股详情和单股报告中。
 - [新功能] #1595 P1.5 新增 Provider Cache Capability Registry，按 provider、api surface、gateway 和 verification status 建模 prompt cache 能力，未知 OpenAI-compatible route 默认 telemetry only。
 - [改进] #1595 P1 新增 prompt cache telemetry / analysis-path hints / diagnostics 最小配置，默认不改变 provider 请求 shape，并复用 LLM usage HMAC secret 做 domain-separated cache hint 派生。
